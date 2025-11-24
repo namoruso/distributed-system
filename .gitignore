@@ -1,0 +1,85 @@
+# Laravel specific
+/src/vendor/
+/src/node_modules/
+/src/public/hot
+/src/public/storage
+/src/storage/*.key
+/src/.env
+/src/.env.backup
+/src/.env.production
+/src/.phpunit.result.cache
+/src/Homestead.json
+/src/Homestead.yaml
+/src/auth.json
+/src/npm-debug.log
+/src/yarn-error.log
+/src/.fleet
+/src/.idea
+/src/.vscode
+
+# Laravel Storage and Cache
+/src/storage/logs/*
+/src/storage/framework/cache/*
+/src/storage/framework/sessions/*
+/src/storage/framework/testing/*
+/src/storage/framework/views/*
+/src/bootstrap/cache/*
+!src/storage/logs/.gitkeep
+!src/storage/framework/cache/.gitkeep
+!src/storage/framework/sessions/.gitkeep
+!src/storage/framework/testing/.gitkeep
+!src/storage/framework/views/.gitkeep
+!src/bootstrap/cache/.gitkeep
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Database
+*.sql
+*.sqlite
+*.sqlite3
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# IDE
+*.swp
+*.swo
+*.swn
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.phpintel/
+
+# Logs
+*.log
+
+# Composer
+composer.phar
+/vendor/
+
+# NPM / Yarn
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn.lock
+package-lock.json
+
+# Test coverage
+coverage/
+.phpunit.cache
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
