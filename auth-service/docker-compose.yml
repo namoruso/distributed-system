@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  auth:
+    build: .
+    container_name: auth
+    env_file: .env.example
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
