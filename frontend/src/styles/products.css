@@ -1,0 +1,191 @@
+/* fase de prueba de el fronted (no tengo como probarlo, ok?) */
+.container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 12px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.products-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.controls input {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  min-width: 220px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #f2f2f2;
+}
+
+.btn.primary {
+  background: linear-gradient(180deg,#2563eb,#1e40af);
+  color: white;
+  box-shadow: 0 2px 6px rgba(16,24,40,.08);
+}
+
+.btn.secondary {
+  background: #f3f4f6;
+}
+
+.btn.danger {
+  background: linear-gradient(180deg,#ef4444,#b91c1c);
+  color: white;
+}
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 8px rgba(16,24,40,.04);
+}
+
+.products-table th,
+.products-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.products-table thead {
+  background: #fafafa;
+}
+
+.actions button {
+  margin-right: 6px;
+}
+
+/* modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 10, 10, 0.35);
+  z-index: 80;
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 6px 30px rgba(2,6,23,.25);
+}
+
+.modal.small {
+  max-width: 380px;
+}
+
+.modal h2, .modal h3 {
+  margin-top: 0;
+}
+
+.modal form label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.modal form input[type="text"],
+.modal form input[type="number"],
+.modal form textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.modal .checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  display: block;
+  margin-top: 4px;
+}
+
+.loading {
+  padding: 18px;
+  text-align: center;
+  color: #374151;
+}
+
+/* empty state */
+.empty {
+  padding: 18px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* global message */
+.global-msg {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: white;
+  z-index: 100;
+}
+
+.global-msg.success {
+  background: rgba(16,185,129,0.95);
+}
+
+.global-msg.error {
+  background: rgba(239,68,68,0.95);
+}
+
+/* responsive */
+@media (max-width: 720px) {
+  .products-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .controls {
+    justify-content: space-between;
+  }
+  .products-table td:nth-child(1),
+  .products-table th:nth-child(1) {
+    display: none;
+  }
+}

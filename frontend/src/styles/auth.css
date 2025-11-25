@@ -1,0 +1,102 @@
+/* contenedor principal */
+
+.auth-container {
+  max-width: 420px;
+  margin: 60px auto;
+  padding: 28px;
+
+  background: white;
+  border-radius: 16px;
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto;
+  text-align: center;
+}
+
+.auth-container h1 {
+  margin-bottom: 18px;
+  color: #1e3a8a;
+  font-size: 1.7rem;
+}
+
+/* los inputs */
+
+.auth-container input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+
+  background: #f9fafb;
+  transition: 0.2s;
+}
+
+.auth-container input:focus {
+  outline: none;
+  border-color: #2563eb; 
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* boton principal */
+
+.auth-container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+
+  background: linear-gradient(180deg,#2563eb,#1e40af);
+  color: white;
+  border: none;
+  border-radius: 10px;
+
+  font-size: 1rem;
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.auth-container button:hover {
+  opacity: 0.85;
+}
+
+/* boton secunda rio */
+
+.sec-btn {
+  margin-top: 10px;
+  background: #6b7280;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.sec-btn:hover {
+  background: #4b5563;
+}
+
+/* mensajes del sistema */
+
+.error {
+  color: #dc2626;
+  margin-top: 10px;
+}
+
+.success {
+  color: #16a34a;
+  margin-top: 10px;
+}
+
+/* los enlaces */
+
+a {
+  color: #2563eb;
+}
+
+a:hover {
+  text-decoration: underline;
+}
