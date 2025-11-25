@@ -1,0 +1,115 @@
+from fastapi import APIRouter, HTTPException, Depends, Header, Body
+from typing import List
+from .schemas import RegReq, VerReq, LoginReq, TokenResp, UsuarioResp
+from . import db, utils, mailer
+from datetime import datetime, timedelta
+
+router = APIRouter()
+
+@router.post("/registro", response_model=UsuarioResp)
+def registro(req: RegReq):
+    if db.buscarNombre(req.nombre):
+        raise HTTPException(status_code=400, detail="nombre ya existe")
+    if db.buscarCorreo(req.correo):
+        raise HTTPException(status_code=400, detail="correo ya existe")
+    if req.clave != req.clave2:
+        raise HTTPException(status_code=400, detail="claves no coinciden")
+    if not utils.validaClave(req.clave):
+        raise HTTPException(status_code=400, detail="clave no cumple")
+    uid = db.nextId()
+    codigo = utils.genCodigo(6)
+    exp = (datetime.utcnow() + timedelta(minutes=30)).isoformat()
+    obj = {
+        "id": uid,
+        "nombre": req.nombre,
+        "correo": req.correo,
+        "claveHash": utils.hashClave(req.clave),
+        "verif": False,
+        "codigo": codigo,
+        "codigoExp": exp,
+        "creado": datetime.utcnow().isoformat()
+    }
+    db.crear(obj)
+    try:
+        mailer.enviar(req.correo, "Código verificación", f"Tu código es: {codigo}")
+    except Exception:
+        pass
+    return UsuarioResp(id=uid, nombre=req.nombre, correo=req.correo, verif=False)
+
+@router.post("/verificar")
+def verificar(req: VerReq):
+    u = db.buscarCorreo(req.correo)
+    if not u:
+        raise HTTPException(status_code=404, detail="usuario no existe")
+    if getattr(u, "verif", False):
+        return {"ok": True, "msg": "ya verificado"}
+    if not getattr(u, "codigo", None) or not getattr(u, "codigoExp", None):
+        raise HTTPException(status_code=400, detail="sin codigo")
+    enviado = (req.codigo or "").strip().upper()
+    esperado = (getattr(u, "codigo", "") or "").strip().upper()
+    try:
+        exp = datetime.fromisoformat(getattr(u, "codigoExp"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="codigo invalido")
+    if datetime.utcnow() > exp:
+        raise HTTPException(status_code=400, detail="codigo expirado")
+    if enviado != esperado:
+        raise HTTPException(status_code=400, detail="codigo invalido")
+    db.actualizar(u.id, {"verif": True, "codigo": None, "codigoExp": None})
+    return {"ok": True}
+
+@router.post("/reenviar")
+def reenviar(data: dict = Body(...)):
+    correo = data.get("correo")
+    if not correo:
+        raise HTTPException(status_code=400, detail="correo requerido")
+    u = db.buscarCorreo(correo)
+    if not u:
+        raise HTTPException(status_code=404, detail="usuario no existe")
+    if getattr(u, "verif", False):
+        return {"ok": True, "msg": "ya verificado"}
+    codigo = utils.genCodigo(6)
+    exp = (datetime.utcnow() + timedelta(minutes=30)).isoformat()
+    db.actualizar(u.id, {"codigo": codigo, "codigoExp": exp})
+    try:
+        mailer.enviar(correo, "Código verificación", f"Tu código es: {codigo}")
+    except Exception:
+        pass
+    return {"ok": True, "codigo": codigo}
+
+@router.post("/login", response_model=TokenResp)
+def login(req: LoginReq):
+    u = db.buscarCorreo(req.correo)
+    if not u:
+        raise HTTPException(status_code=401, detail="credenciales invalidas")
+    if not getattr(u, "verif", False):
+        raise HTTPException(status_code=401, detail="usuario no verificado")
+    if not utils.verificaClave(req.clave, getattr(u, "claveHash", "")):
+        raise HTTPException(status_code=401, detail="credenciales invalidas")
+    token = utils.crearToken({"sub": str(u.id), "correo": u.correo})
+    return TokenResp(access_token=token)
+
+def obtenerPorToken(authorization: str = Header(...)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="token invalido")
+    token = authorization.split(" ")[1]
+    try:
+        payload = utils.decodToken(token)
+    except Exception:
+        raise HTTPException(status_code=401, detail="token invalido")
+    try:
+        uid = int(payload.get("sub"))
+    except Exception:
+        raise HTTPException(status_code=401, detail="token invalido")
+    u = db.buscarId(uid)
+    if not u:
+        raise HTTPException(status_code=401, detail="usuario no existe")
+    return u
+
+@router.get("/me", response_model=UsuarioResp)
+def me(usuario = Depends(obtenerPorToken)):
+    return UsuarioResp(id=usuario.id, nombre=usuario.nombre, correo=usuario.correo, verif=usuario.verif)
+
+@router.get("/debug/lista", response_model=List[UsuarioResp])
+def lista():
+    return [UsuarioResp(id=u.id, nombre=u.nombre, correo=u.correo, verif=u.verif) for u in db.listar()]
