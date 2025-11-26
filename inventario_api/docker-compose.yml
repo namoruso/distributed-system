@@ -1,0 +1,45 @@
+
+services:
+  # Tu aplicación Rust
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - RUST_LOG=info
+      - DATABASE_URL=postgres://postgres:password@db:5432/inventario_db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - inventario-network
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=inventario_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d inventario_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - inventario-network
+
+volumes:
+  postgres_data:
+
+networks:
+  inventario-network:
+    driver: bridge

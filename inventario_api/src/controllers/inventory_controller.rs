@@ -1,0 +1,124 @@
+use axum::{Json, extract::{Path, rejection::JsonRejection}, http::StatusCode, response::IntoResponse};
+use serde_json::json;
+use sqlx::{query, query_as};
+
+use crate::{database::get_pool, models::data::{InventoryPayload, Products}};
+
+pub async fn add_new_product(payload: Result<Json<InventoryPayload>, JsonRejection>) -> impl IntoResponse {
+
+    let data = match payload {
+        Ok(value) => value,
+        Err(_) => {
+            eprintln!("{}: Error en el json",StatusCode::BAD_REQUEST);
+            return (StatusCode::BAD_REQUEST, Json(json!({"message": "Datos faltantes o tipos erroneos".to_string()})))
+        }
+    };
+
+    let values = match data.validate() {
+        Ok(value) => value,
+        Err(e) =>{
+            eprintln!("{}: Error en los datos",StatusCode::BAD_REQUEST);
+            return (StatusCode::BAD_REQUEST, Json(json!({"message": e.to_string()})))
+        }
+    };
+
+    let status_product = data.status.unwrap_or(true);
+
+    let pool = match get_pool().await {
+        Ok(connect) => connect,
+        Err(error) => {
+            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al guardar los datos"}))) 
+        }
+    };
+
+    let result = query!(
+        r#"
+        INSERT INTO inventory (name, stock, maximun, minimun, status) 
+        VALUES ($1, $2, $3, $4, $5) 
+        RETURNING id, name
+        "#,
+        data.name,
+        values[0],
+        values[1],
+        values[2],
+        status_product
+    ).fetch_one(&pool).await;
+
+    match result {
+        Ok(record) => {
+            let res = json!({
+                "id": record.id,
+                "name": record.name,
+                "message": "Se ha creado el producto exitosamente".to_string()
+            });
+            println!("{}: Producto creado",StatusCode::CREATED);
+            return (StatusCode::CREATED, Json(res));
+        },
+        Err(error) => {
+            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al guardar los datos"}))) 
+        }
+    }
+}
+
+pub async fn get_product_by_id(id: Path<i32>) -> impl IntoResponse {
+    let pool = match get_pool().await {
+        Ok(connect) => connect,
+        Err(error) => {
+            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al guardar los datos"}))) 
+        }
+    };
+
+    let result = query_as!(Products,
+        r#"
+        SELECT * FROM inventory WHERE id = $1
+        "#,
+        *id
+    ).fetch_one(&pool).await;
+
+    match result {
+        Ok(record) => {
+
+            if !record.status {
+                return (StatusCode::OK, Json(json!({"message": "Producto inexistente"}))) 
+            }
+
+            println!("{}: Producto obtenido",StatusCode::OK);
+            return (StatusCode::OK, Json(json!(record)));
+        },
+        Err(error) => {
+            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al obtener los datos o producto inexistente"}))) 
+        }
+    }
+}
+
+pub async fn get_all_products() -> impl IntoResponse {
+    let pool = match get_pool().await {
+        Ok(connect) => connect,
+        Err(error) => {
+            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al guardar los datos"}))) 
+        }
+    };
+
+    let result = query_as!(Products,
+        r#"
+        SELECT * FROM inventory WHERE status != false
+        "#,
+    ).fetch_all(&pool).await;
+
+    match result {
+        Ok(record) => {
+
+            println!("{}: Productos obtenidos",StatusCode::OK);
+            return (StatusCode::OK,Json(json!(record)));
+        },
+        Err(error) => {
+            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al obtener los datos"}))) 
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "CREATE TABLE IF NOT EXISTS inventory (\n            id SERIAL PRIMARY KEY,\n            name VARCHAR(255) NOT NULL,\n            stock INTEGER NOT NULL,\n            minimun INTEGER NOT NULL,\n            maximun INTEGER NOT NULL,\n            created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,\n            updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,\n            status boolean DEFAULT TRUE NOT NULL\n        )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "62999090bc07bef79614743fef94087b93e671e5fb46de0df217c9efa7887f08"
+}
