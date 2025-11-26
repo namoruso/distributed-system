@@ -9,7 +9,7 @@ connectArgs = {}
 if dbUrl.startswith("sqlite"):
     connectArgs = {"check_same_thread": False}
 
-engine = create_engine(dbUrl, connect_args=connectArgs, echo=False)
+engine = create_engine(dbUrl, connect_args=connectArgs, pool_pre_ping=True, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def initDb():
@@ -66,7 +66,6 @@ def buscarNombre(nombre):
         db.close()
 
 def crear(obj: dict):
-    """obj es un dict con las keys: nombre, correo, claveHash, verif, codigo, codigoExp, creado"""
     db = SessionLocal()
     try:
         fila = UsuarioDB(

@@ -6,3 +6,4 @@ email-validator
 python-dotenv
 argon2-cffi
 SQLAlchemy
+psycopg2-binary

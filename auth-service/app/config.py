@@ -13,4 +13,4 @@ smtpUser = os.getenv("SMTP_USER", "")
 smtpPass = os.getenv("SMTP_PASS", "")
 fromEmail = os.getenv("FROM_EMAIL", "no-reply@local")
 
-dbUrl = os.getenv("DATABASE_URL", "sqlite:///./data/auth.db")
+dbUrl = os.getenv("DATABASE_URL", "postgresql://authuser:authpass@db:5432/authdb")
