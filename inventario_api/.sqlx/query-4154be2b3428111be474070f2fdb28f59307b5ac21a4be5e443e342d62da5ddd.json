@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO inventory (name, stock, maximun, minimun, status) \n        VALUES ($1, $2, $3, $4, $5) \n        RETURNING id, name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "4154be2b3428111be474070f2fdb28f59307b5ac21a4be5e443e342d62da5ddd"
+}

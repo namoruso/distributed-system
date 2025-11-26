@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT * FROM inventory WHERE status != false\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "stock",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "minimun",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "maximun",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ceb47520bf754b9d321ca72b3f16068d3171768e3da82eed5b07f3204accfe84"
+}
