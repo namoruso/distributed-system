@@ -1,18 +1,18 @@
 import smtplib
 from email.message import EmailMessage
-from .config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, FROM_EMAIL
+from .config import smtpHost, smtpPort, smtpUser, smtpPass, fromEmail
 
 def enviar(correo, asunto, cuerpo):
     msg = EmailMessage()
-    msg["From"] = FROM_EMAIL
+    msg["From"] = fromEmail
     msg["To"] = correo
     msg["Subject"] = asunto
     msg.set_content(cuerpo)
     try:
-        srv = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=5)
-        if SMTP_USER:
+        srv = smtplib.SMTP(smtpHost, smtpPort, timeout=5)
+        if smtpUser:
             srv.starttls()
-            srv.login(SMTP_USER, SMTP_PASS)
+            srv.login(smtpUser, smtpPass)
         srv.send_message(msg)
         srv.quit()
     except Exception as e:

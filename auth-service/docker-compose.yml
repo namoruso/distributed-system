@@ -3,7 +3,7 @@ services:
   auth:
     build: .
     container_name: auth
-    env_file: .env.example
+    env_file: .env
     ports:
       - "8000:8000"
     volumes:

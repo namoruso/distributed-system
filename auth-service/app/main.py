@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from .routes import router
+from . import db as dbmod
+
 app = FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,10 +12,14 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,      # quienes pueden acceder
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],        # permite GET, POST, etc
-    allow_headers=["*"],        # permite headers como Authorization
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(router, prefix="/api")
+
+@app.on_event("startup")
+def startup():
+    dbmod.initDb()
