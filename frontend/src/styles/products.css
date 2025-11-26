@@ -1,191 +1,164 @@
-/* fase de prueba de el fronted (no tengo como probarlo, ok?) */
+/* fase de prueba de el fronted (no tengo como probarlo, ok?, no quiero quejas), aun no esta probado */
+
+
 .container {
-  max-width: 1100px;
-  margin: 20px auto;
-  padding: 12px;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  max-width: 1200px;
+  margin: 28px auto;
+  padding: 14px;
+
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto;
 }
+
 
 .products-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  gap: 10px;
 }
 
 .products-header h1 {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
+  color: #1e3a8a;
 }
 
+/* Controls */
 .controls {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  gap: 10px;
 }
 
 .controls input {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  min-width: 220px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  transition: 0.2s;
 }
 
+.controls input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  outline: none;
+}
+
+/* Buttons base */
 .btn {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  background: #f2f2f2;
+
+  font-size: 0.95rem;
+  transition: 0.2s;
 }
 
 .btn.primary {
-  background: linear-gradient(180deg,#2563eb,#1e40af);
+  background: linear-gradient(135deg, #2563eb, #1e40af);
   color: white;
-  box-shadow: 0 2px 6px rgba(16,24,40,.08);
+}
+
+.btn.primary:hover {
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.35);
+  transform: translateY(-2px);
 }
 
 .btn.secondary {
   background: #f3f4f6;
+  color: #374151;
 }
 
 .btn.danger {
-  background: linear-gradient(180deg,#ef4444,#b91c1c);
+  background: linear-gradient(135deg,#ef4444,#b91c1c);
   color: white;
 }
 
+/* Tabla */
 .products-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  box-shadow: 0 2px 8px rgba(16,24,40,.04);
+  border-radius: 12px;
+
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.products-table thead {
+  background: #f1f5f9;
 }
 
 .products-table th,
 .products-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-  font-size: 0.95rem;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.products-table thead {
-  background: #fafafa;
-}
-
-.actions button {
-  margin-right: 6px;
-}
-
-/* modal */
+/* Modales */
 .modal-backdrop {
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(10, 10, 10, 0.35);
-  z-index: 80;
+
+  background: rgba(0,0,0,0.40);
+  z-index: 90;
 }
 
 .modal {
-  width: 100%;
-  max-width: 520px;
   background: white;
-  padding: 18px;
-  border-radius: 12px;
-  box-shadow: 0 6px 30px rgba(2,6,23,.25);
+  max-width: 520px;
+  width: 100%;
+  padding: 22px;
+  border-radius: 14px;
+
+  box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+  animation: fadeIn 0.25s ease;
 }
 
 .modal.small {
   max-width: 380px;
 }
 
-.modal h2, .modal h3 {
-  margin-top: 0;
-}
-
-.modal form label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-}
-
-.modal form input[type="text"],
-.modal form input[type="number"],
+.modal form input,
 .modal form textarea {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  border: 1px solid #e6e6e6;
-  margin-top: 6px;
-  margin-bottom: 6px;
+  background: #f9fafb;
 }
 
-.modal .checkbox {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin: 8px 0;
+.modal form input:focus,
+.modal form textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  outline: none;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
-}
+/* Otros */
+.loading { text-align: center; padding: 18px; color: #475569; }
+.empty { text-align: center; padding: 22px; color: #6b7280; }
 
-.error {
-  color: #b91c1c;
-  font-size: 0.85rem;
-  display: block;
-  margin-top: 4px;
-}
-
-.loading {
-  padding: 18px;
-  text-align: center;
-  color: #374151;
-}
-
-/* empty state */
-.empty {
-  padding: 18px;
-  text-align: center;
-  color: #6b7280;
-}
-
-/* global message */
 .global-msg {
   position: fixed;
-  right: 20px;
   bottom: 20px;
-  padding: 12px 14px;
-  border-radius: 8px;
+  right: 20px;
+  padding: 12px 16px;
+  border-radius: 10px;
   color: white;
   z-index: 100;
 }
 
-.global-msg.success {
-  background: rgba(16,185,129,0.95);
-}
+.global-msg.success { background: rgba(16,185,129,0.95); }
+.global-msg.error { background: rgba(239,68,68,0.95); }
 
-.global-msg.error {
-  background: rgba(239,68,68,0.95);
-}
-
-/* responsive */
-@media (max-width: 720px) {
+/* Mobile */
+@media(max-width: 720px){
   .products-header {
     flex-direction: column;
     align-items: stretch;
-  }
-  .controls {
-    justify-content: space-between;
-  }
-  .products-table td:nth-child(1),
-  .products-table th:nth-child(1) {
-    display: none;
   }
 }

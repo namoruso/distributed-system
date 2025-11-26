@@ -1,4 +1,4 @@
-// src/api/productsApi.js
+
 import axios from 'axios'
 import { useAuthStore } from '../store/auth'
 

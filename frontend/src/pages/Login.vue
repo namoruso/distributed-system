@@ -20,9 +20,15 @@ async function login() {
     })
 
     auth.setToken(res.data.token)
+
+    // redirige al dashboard
+    window.location.href = '/dashboard'
+
   } catch (err) {
     error.value = err.response?.data?.detail || 'Credenciales inválidas'
   }
+
+
 }
 </script>
 
