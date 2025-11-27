@@ -4,6 +4,10 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import api from '../api/axiosAuth'
 import '../styles/dashboard.css'
+import logo from '../assets/logo.svg'
+import banner from '../assets/images/banner.png'
+import AuthFooter from '../components/AuthFooter.vue'
+
 
 const user = ref(null)
 const loading = ref(true)
@@ -45,6 +49,10 @@ function getUserInitials() {
     <!-- Navbar Integrado -->
     <nav class="dashboard-navbar">
       <div class="navbar-content">
+        <div class="navbar-left">
+          <img :src="logo" alt="Logo" class="app-logo" />
+        </div>
+
 
         <!-- Menú de Navegación -->
         <ul class="nav-menu">
@@ -95,13 +103,14 @@ function getUserInitials() {
         <!-- Header Principal -->
         <div class="dashboard-header">
           <div class="welcome-section">
-            <h1>¡Bienvenida, {{ user?.nombre }}! 👋</h1>
+            <h1>¡Bienvenido, {{ user?.nombre }}! 👋</h1>
             <p class="subtitle">Panel de control del sistema distribuido</p>
           </div>
+          
           <div class="header-actions">
           </div>
         </div>
-
+        <img :src="banner" alt="Dashboard Banner" class="dashboard-banner" />
         <!-- Loading State -->
         <div v-if="loading" class="loading-state">
           <div class="spinner"></div>
@@ -169,4 +178,5 @@ function getUserInitials() {
       </div>
     </main>
   </div>
+  <AuthFooter />
 </template>

@@ -5,6 +5,7 @@ import '../styles/auth.css'
 import { useRouter } from 'vue-router'
 import { useVerifyStore } from '../store/verify'
 const verifyStore = useVerifyStore()
+import AuthFooter from '../components/AuthFooter.vue'
 
 
 const router = useRouter()
@@ -172,5 +173,7 @@ async function register() {
 
     </div>
   </div>
+  <AuthFooter />
+
 </template>
 

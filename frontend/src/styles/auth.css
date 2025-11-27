@@ -28,11 +28,41 @@
   text-align: center;
 }
 
-/* animación de entrada */
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.auth-page {
+  background-image: url('../assets/images/fondo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+body {
+  background: none; 
+}
+
+.auth-container {
+  background: #ffffff !important; 
+  position: relative;
+  z-index: 2;
+}
+.auth-page::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35); 
+  z-index: -1;
+  backdrop-filter: blur(2px);
+}
+
 
 .auth-container h1 {
   margin-bottom: 26px;

@@ -4,6 +4,8 @@ import api from '../api/axiosAuth'
 import '../styles/auth.css'
 import { useRouter } from 'vue-router'
 import { useVerifyStore } from '../store/verify'
+import AuthFooter from '../components/AuthFooter.vue'
+import logo from '../assets/logo.svg'
 
 const router = useRouter()
 const verifyStore = useVerifyStore()
@@ -100,7 +102,7 @@ async function resendCode() {
     await api.post('/reenviar', { correo: correo.value.trim() })
     msg.value = "Código reenviado a tu correo."
 
-    iniciarContador(30)  // ⏳ iniciar contador de 30 segundos
+    iniciarContador(30)  
 
   } catch (err) {
     error.value = err.response?.data?.detail || "No se pudo reenviar el código."
@@ -109,55 +111,56 @@ async function resendCode() {
 </script>
 
 <template>
-  <div class="auth-container">
+  <div class="auth-page">
+    <div class="auth-container">
+      <h1>Verificar Cuenta</h1>
 
-    <h1>Verificar Cuenta</h1>
+      <form @submit.prevent="verifyCode" class="auth-form">
+        <div class="form-group">
+          <label>Correo registrado</label>
+          <input
+            type="email"
+            v-model="correo"
+            @input="clearError"
+            placeholder="tuemail@correo.com"
+          />
+        </div>
 
-    <form @submit.prevent="verifyCode" class="auth-form">
+        <div class="form-group">
+          <label>Código de verificación</label>
+          <input
+            type="text"
+            v-model="codigo"
+            maxlength="6"
+            @input="clearError"
+            placeholder="Ej: ABC123"
+          />
+        </div>
 
-      <div class="form-group">
-        <label>Correo registrado</label>
-        <input
-          type="email"
-          v-model="correo"
-          @input="clearError"
-          placeholder="tuemail@correo.com"
-        />
-      </div>
+        <button type="submit" :disabled="!puedeEnviar">
+          Verificar
+        </button>
 
-      <div class="form-group">
-        <label>Código de verificación</label>
-        <input
-          type="text"
-          v-model="codigo"
-          maxlength="6"
-          @input="clearError"
-          placeholder="Ej: ABC123"
-        />
-      </div>
+        <p class="error" v-if="error">{{ error }}</p>
+        <p class="success" v-if="msg">{{ msg }}</p>
+      </form>
 
-      <button type="submit" :disabled="!puedeEnviar">
-        Verificar
+      <button
+        class="sec-btn"
+        @click="resendCode"
+        :disabled="tiempoRestante > 0"
+      >
+        <span v-if="tiempoRestante === 0">Reenviar código</span>
+        <span v-else>Reenviar código ({{ tiempoRestante }}s)</span>
       </button>
 
-      <p class="error" v-if="error">{{ error }}</p>
-      <p class="success" v-if="msg">{{ msg }}</p>
+      <p class="aux-text">
+        ¿Ya está todo listo?
+        <router-link to="/login">Inicia sesión</router-link>
+      </p>
+    </div>
 
-    </form>
-
-    <!-- Botón con contador -->
-    <button
-      class="sec-btn"
-      @click="resendCode"
-      :disabled="tiempoRestante > 0"
-    >
-      <span v-if="tiempoRestante === 0">Reenviar código</span>
-      <span v-else>Reenviar código ({{ tiempoRestante }}s)</span>
-    </button>
-
-    <p class="aux-text">
-      ¿Ya está todo listo?
-      <router-link to="/login">Inicia sesión</router-link>
-    </p>
+    
   </div>
+  <AuthFooter />
 </template>

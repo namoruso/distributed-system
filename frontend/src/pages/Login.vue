@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import api from '../api/axiosAuth'
 import { useAuthStore } from '../store/auth'
 import '../styles/auth.css'
+import AuthFooter from '../components/AuthFooter.vue'
 
 const correo = ref('')
 const clave = ref('')
@@ -105,6 +106,7 @@ async function login() {
       </p>
     </div>
   </div>
+  <AuthFooter />
 </template>
 
 

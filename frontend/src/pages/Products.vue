@@ -1,4 +1,5 @@
 <template>
+  <AppNavbar />
   <div class="products-page container">
     <header class="products-header">
       <h1>Productos</h1>
@@ -126,6 +127,7 @@ import {
   updateProduct,
   deleteProduct
 } from '../api/axiosProducts'
+import AppNavbar from '../components/AppNavbar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
