@@ -412,51 +412,121 @@ npm run build
 └───────────────────────────────────────────────────────┘
 ```
 
-src/
- ├─ api/                         ← Axios instances per microservice
- │    ├─ axiosAuth.js
- │    ├─ axiosProducts.js
- │    └─ axiosInventory.js
- │    └─ index.js                ← central export of all APIs
- │
- ├─ assets/
- │    └─ images/
- │         ├─ fondo.png
- │         ├─ banner.png
- │         └─ logo.svg
- │
- ├─ components/
- │    ├─ AppNavbar.vue
- │    └─ AuthFooter.vue
- │
- ├─ pages/
- │    ├─ Login.vue
- │    ├─ Register.vue
- │    ├─ Verify.vue
- │    ├─ Dashboard.vue
- │    ├─ Products.vue
- │    └─ Inventory.vue
- │
- ├─ router/
- │    └─ index.js
- │
- ├─ store/
- │    ├─ auth.js        ← manages JWT and user session
- │    └─ verify.js      ← stores email for verification
- │
- ├─ styles/
- │    ├─ main.css
- │    ├─ auth.css
- │    ├─ dashboard.css
- │    ├─ navbar.css
- │    ├─ products.css
- │    └─ inventory.css
- │
- ├─ utils/              ← future helper functions
- │
- ├─ App.vue
- ├─ main.js
- ├─ index.html
- └─ README.md
+# Diagrama de Casos de Uso - Sistema Distribuido de Microservicios
+
+```mermaid
+graph TB
+    %% Actores del sistema
+    A[Usuario del Sistema] --> UC
+    B[Administrador] --> UC
+    C[Sistema Externo] --> UC
+    
+    %% Agrupación de casos de uso por microservicio
+    subgraph MS1 [Microservicio 1: Auth Service (Python + FastAPI)]
+        UC1[Registrar Usuario]
+        UC2[Iniciar Sesión]
+        UC3[Cerrar Sesión]
+        UC4[Validar Token JWT]
+        UC5[Refrescar Token]
+        UC6[Verificar Email]
+        UC7[Reenviar Código Verificación]
+    end
+    
+    subgraph MS2 [Microservicio 2: Products Service (PHP + Laravel)]
+        UC8[Crear Producto]
+        UC9[Consultar Productos]
+        UC10[Obtener Producto por ID]
+        UC11[Actualizar Producto]
+        UC12[Eliminar Producto]
+        UC13[Buscar Productos]
+        UC14[Validar Datos Producto]
+    end
+    
+    subgraph MS3 [Microservicio 3: Inventory Service (Rust + Axum)]
+        UC15[Consultar Inventario]
+        UC16[Obtener Item por ID]
+        UC17[Aumentar Stock]
+        UC18[Disminuir Stock]
+        UC19[Actualizar Nivales Stock]
+        UC20[Consultar Nivel Inventario]
+        UC21[Gestionar Estado Producto]
+        UC22[Generar Alertas Stock]
+    end
+    
+    subgraph MS4 [Frontend Vue.js]
+        UC23[Navegar entre Vistas]
+        UC24[Gestionar Sesión Usuario]
+        UC25[Manejar Estado Global]
+        UC26[Consumir APIs Microservicios]
+        UC27[Manejar Errores y Carga]
+        UC28[Validar Formularios Cliente]
+    end
+    
+    %% Relaciones entre actores y casos de uso
+    A --> UC1
+    A --> UC2
+    A --> UC3
+    A --> UC6
+    A --> UC7
+    A --> UC8
+    A --> UC9
+    A --> UC10
+    A --> UC11
+    A --> UC12
+    A --> UC13
+    A --> UC15
+    A --> UC16
+    A --> UC17
+    A --> UC18
+    A --> UC19
+    A --> UC21
+    A --> UC23
+    A --> UC24
+    
+    B --> UC8
+    B --> UC11
+    B --> UC12
+    B --> UC17
+    B --> UC18
+    B --> UC19
+    B --> UC21
+    
+    C --> UC4
+    C --> UC9
+    C --> UC15
+    C --> UC20
+    
+    %% Dependencias entre casos de uso
+    UC2 -.->|requiere| UC4
+    UC8 -.->|requiere| UC4
+    UC11 -.->|requiere| UC4
+    UC12 -.->|requiere| UC4
+    UC17 -.->|requiere| UC4
+    UC18 -.->|requiere| UC4
+    UC19 -.->|requiere| UC4
+    
+    UC17 -.->|afecta| UC20
+    UC18 -.->|afecta| UC20
+    UC19 -.->|afecta| UC20
+    
+    UC8 -.->|crea| UC16
+    UC12 -.->|elimina| UC16
+    
+    UC26 -.->|consume| UC1
+    UC26 -.->|consume| UC2
+    UC26 -.->|consume| UC8
+    UC26 -.->|consume| UC9
+    UC26 -.->|consume| UC15
+    UC26 -.->|consume| UC17
+    UC26 -.->|consume| UC18
+
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style MS1 fill:#fff3e0
+    style MS2 fill:#e8eaf6
+    style MS3 fill:#e0f2f1
+    style MS4 fill:#fce4ec
+```
 
 Built with ❤️ using Vue and Docker
