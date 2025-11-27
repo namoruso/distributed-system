@@ -12,8 +12,7 @@ pub async fn init_db()  {
                 return;
             } 
         }
-        Err(error) => {
-            eprintln!("Error en la BD: {}", error);
+        Err(_) => {
             return
         }
     }

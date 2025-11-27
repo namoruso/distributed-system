@@ -100,7 +100,7 @@ pub async fn get_all_products() -> impl IntoResponse {
         Ok(connect) => connect,
         Err(error) => {
             eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
-            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al guardar los datos"}))) 
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al obtener los datos"}))) 
         }
     };
 
