@@ -1,11 +1,16 @@
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
-SECRET=os.getenv("SECRET_KEY","secreto")
-ALGORITMO=os.getenv("ALGORITMO","HS256")
-EXP_MIN=int(os.getenv("EXP_MIN","60"))
-SMTP_HOST=os.getenv("SMTP_HOST","localhost")
-SMTP_PORT=int(os.getenv("SMTP_PORT","25"))
-SMTP_USER=os.getenv("SMTP_USER","")
-SMTP_PASS=os.getenv("SMTP_PASS","")
-FROM_EMAIL=os.getenv("FROM_EMAIL","no-reply@local")
+
+secret = os.getenv("JWT_SECRET", "cambia_por_un_secreto_local")
+algoritmo = os.getenv("JWT_ALGO", "HS256")
+expMin = int(os.getenv("JWT_EXP_MIN", "60"))
+
+smtpHost = os.getenv("SMTP_HOST", "localhost")
+smtpPort = int(os.getenv("SMTP_PORT", "25"))
+smtpUser = os.getenv("SMTP_USER", "")
+smtpPass = os.getenv("SMTP_PASS", "")
+fromEmail = os.getenv("FROM_EMAIL", "no-reply@local")
+
+dbUrl = os.getenv("DATABASE_URL", "postgresql://authuser:authpass@db:5432/authdb")

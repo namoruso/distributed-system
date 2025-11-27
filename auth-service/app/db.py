@@ -1,65 +1,113 @@
-import json
-from pathlib import Path
-from threading import Lock
-from .models import Usuario
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import NoResultFound, IntegrityError
+from datetime import datetime
+from .models import Base, UsuarioDB, Usuario
+from .config import dbUrl
 
-DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "usuarios.json"
-lock = Lock()
+connectArgs = {}
+if dbUrl.startswith("sqlite"):
+    connectArgs = {"check_same_thread": False}
 
-def leer():
-    with lock:
-        if not DATA_PATH.exists():
-            DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-            DATA_PATH.write_text("[]")
-        return json.loads(DATA_PATH.read_text())
+engine = create_engine(dbUrl, connect_args=connectArgs, pool_pre_ping=True, echo=False)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def guardar(lista):
-    with lock:
-        DATA_PATH.write_text(json.dumps(lista, default=str, indent=2))
+def initDb():
+    Base.metadata.create_all(bind=engine)
+
+def _filaAUsuario(fila: UsuarioDB):
+    return Usuario(
+        id = fila.id,
+        nombre = fila.nombre,
+        correo = fila.correo,
+        claveHash = fila.claveHash,
+        verif = bool(fila.verif),
+        codigo = fila.codigo,
+        codigoExp = fila.codigoExp.isoformat() if fila.codigoExp else None,
+        creado = fila.creado.isoformat() if fila.creado else datetime.utcnow().isoformat()
+    )
 
 def listar():
-    raw = leer()
-    return [Usuario(**r) for r in raw]
+    db = SessionLocal()
+    try:
+        filas = db.query(UsuarioDB).all()
+        return [_filaAUsuario(f) for f in filas]
+    finally:
+        db.close()
 
 def buscarCorreo(correo):
-    raw = leer()
-    for r in raw:
-        if r.get("correo","").lower() == correo.lower():
-            return Usuario(**r)
-    return None
+    db = SessionLocal()
+    try:
+        fila = db.query(UsuarioDB).filter(UsuarioDB.correo == correo.lower()).first()
+        if not fila:
+            return None
+        return _filaAUsuario(fila)
+    finally:
+        db.close()
 
 def buscarId(uid):
-    raw = leer()
-    for r in raw:
-        if r.get("id") == uid:
-            return Usuario(**r)
-    return None
-
-def nextId():
-    raw = leer()
-    if not raw:
-        return 1
-    return max(r.get("id",0) for r in raw) + 1
-
-def crear(obj):
-    raw = leer()
-    raw.append(obj)
-    guardar(raw)
-    return Usuario(**obj)
-
-def actualizar(uid, cambios: dict):
-    raw = leer()
-    for i, r in enumerate(raw):
-        if r.get("id") == uid:
-            r.update(cambios)
-            raw[i] = r
-            guardar(raw)
-            return Usuario(**r)
-    return None
+    db = SessionLocal()
+    try:
+        fila = db.query(UsuarioDB).filter(UsuarioDB.id == uid).first()
+        if not fila:
+            return None
+        return _filaAUsuario(fila)
+    finally:
+        db.close()
 
 def buscarNombre(nombre):
-    raw = leer()
-    for r in raw:
-        if r.get("nombre","").lower() == nombre.lower():
-            return Usuario(**r)
-    return None
+    db = SessionLocal()
+    try:
+        fila = db.query(UsuarioDB).filter(UsuarioDB.nombre.ilike(nombre)).first()
+        if not fila:
+            return None
+        return _filaAUsuario(fila)
+    finally:
+        db.close()
+
+def crear(obj: dict):
+    db = SessionLocal()
+    try:
+        fila = UsuarioDB(
+            nombre = obj.get("nombre"),
+            correo = obj.get("correo").lower(),
+            claveHash = obj.get("claveHash"),
+            verif = bool(obj.get("verif", False)),
+            codigo = obj.get("codigo"),
+            codigoExp = None if not obj.get("codigoExp") else datetime.fromisoformat(obj.get("codigoExp")),
+            creado = None if not obj.get("creado") else datetime.fromisoformat(obj.get("creado"))
+        )
+        db.add(fila)
+        db.commit()
+        db.refresh(fila)
+        return _filaAUsuario(fila)
+    except IntegrityError as e:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+def actualizar(uid, cambios: dict):
+    db = SessionLocal()
+    try:
+        fila = db.query(UsuarioDB).filter(UsuarioDB.id == uid).first()
+        if not fila:
+            return None
+        if "nombre" in cambios:
+            fila.nombre = cambios.get("nombre")
+        if "correo" in cambios:
+            fila.correo = cambios.get("correo").lower()
+        if "claveHash" in cambios:
+            fila.claveHash = cambios.get("claveHash")
+        if "verif" in cambios:
+            fila.verif = bool(cambios.get("verif"))
+        if "codigo" in cambios:
+            fila.codigo = cambios.get("codigo")
+        if "codigoExp" in cambios:
+            fila.codigoExp = None if not cambios.get("codigoExp") else datetime.fromisoformat(cambios.get("codigoExp"))
+        db.add(fila)
+        db.commit()
+        db.refresh(fila)
+        return _filaAUsuario(fila)
+    finally:
+        db.close()

@@ -16,11 +16,9 @@ def registro(req: RegReq):
         raise HTTPException(status_code=400, detail="claves no coinciden")
     if not utils.validaClave(req.clave):
         raise HTTPException(status_code=400, detail="clave no cumple")
-    uid = db.nextId()
     codigo = utils.genCodigo(6)
     exp = (datetime.utcnow() + timedelta(minutes=30)).isoformat()
     obj = {
-        "id": uid,
         "nombre": req.nombre,
         "correo": req.correo,
         "claveHash": utils.hashClave(req.clave),
@@ -29,12 +27,15 @@ def registro(req: RegReq):
         "codigoExp": exp,
         "creado": datetime.utcnow().isoformat()
     }
-    db.crear(obj)
+    try:
+        u = db.crear(obj)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="error al crear usuario")
     try:
         mailer.enviar(req.correo, "Código verificación", f"Tu código es: {codigo}")
     except Exception:
         pass
-    return UsuarioResp(id=uid, nombre=req.nombre, correo=req.correo, verif=False)
+    return UsuarioResp(id=u.id, nombre=u.nombre, correo=u.correo, verif=u.verif)
 
 @router.post("/verificar")
 def verificar(req: VerReq):

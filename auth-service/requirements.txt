@@ -1,7 +1,9 @@
 fastapi
 uvicorn[standard]
 python-jose[cryptography]
-passlib[bcrypt]
+passlib[argon2]
 email-validator
 python-dotenv
 argon2-cffi
+SQLAlchemy
+psycopg2-binary

@@ -23,7 +23,8 @@ eggs/
 .env.production
 .env.*.local
 
-data/usuarios.json
+data/
+backups/
 
 *.log
 logs/

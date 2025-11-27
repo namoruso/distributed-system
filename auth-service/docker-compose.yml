@@ -1,15 +1,38 @@
 version: "3.8"
 services:
+  db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: authuser
+      POSTGRES_PASSWORD: authpass
+      POSTGRES_DB: authdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   auth:
     build: .
     container_name: auth
-    env_file: .env.example
+    env_file: .env
     ports:
       - "8000:8000"
     volumes:
       - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+
   mailhog:
     image: mailhog/mailhog
+    container_name: auth-mailhog
     ports:
       - "1025:1025"
       - "8025:8025"
+
+volumes:
+  postgres_data:
