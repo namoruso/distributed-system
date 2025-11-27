@@ -113,7 +113,7 @@
 /*
  Products.vue
  - Usa Composition API
- - Se apoya en src/api/productsApi.js para llamadas REST
+ - Se apoya en src/api/axiosProducts.js para llamadas REST
  - Manejo explícito de errores de validación (422) y 401 (token)
 */
 
@@ -125,7 +125,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct
-} from '../api/productsApi'
+} from '../api/axiosProducts'
 
 const router = useRouter()
 const auth = useAuthStore()

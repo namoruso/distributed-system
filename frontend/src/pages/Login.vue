@@ -64,46 +64,49 @@ async function login() {
 </script>
 
 <template>
-  <div class="auth-container">
-    <h1>Iniciar Sesión</h1>
+  <div class="auth-page">
+    <div class="auth-container">
+      <h1>Iniciar Sesión</h1>
 
-    <form @submit.prevent="login" class="auth-form">
-      <!-- Campo correo -->
-      <div class="form-group">
-        <label>Correo electrónico</label>
-        <input
-          type="email"
-          v-model="correo"
-          placeholder="tuemail@correo.com"
-          :disabled="loading"
-        />
-      </div>
+      <form @submit.prevent="login" class="auth-form">
+        <!-- Campo correo -->
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input
+            type="email"
+            v-model="correo"
+            placeholder="tuemail@correo.com"
+            :disabled="loading"
+          />
+        </div>
 
-      <!-- Campo contraseña -->
-      <div class="form-group">
-        <label>Contraseña</label>
-        <input
-          type="password"
-          v-model="clave"
-          placeholder="••••••••"
-          :disabled="loading"
-        />
-      </div>
+        <!-- Campo contraseña -->
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            v-model="clave"
+            placeholder="••••••••"
+            :disabled="loading"
+          />
+        </div>
 
-      <button type="submit" :disabled="loading">
-        <span v-if="loading">Cargando...</span>
-        <span v-else>Entrar</span>
-      </button>
+        <button type="submit" :disabled="loading">
+          <span v-if="loading">Cargando...</span>
+          <span v-else>Entrar</span>
+        </button>
 
-      <p class="error" v-if="error">{{ error }}</p>
-    </form>
+        <p class="error" v-if="error">{{ error }}</p>
+      </form>
 
-    <p class="aux-text">
-      ¿No tienes cuenta?  
-      <router-link to="/register">Regístrate aquí</router-link>
-    </p>
+      <p class="aux-text">
+        ¿No tienes cuenta?
+        <router-link to="/register">Regístrate aquí</router-link>
+      </p>
+    </div>
   </div>
 </template>
+
 
 <style scoped>
 button:disabled {

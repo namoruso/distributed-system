@@ -1,7 +1,7 @@
 
 
 /* el fondo general  */
-body {
+.auth-page {
   background: linear-gradient(140deg, #dbeafe 0%, #eff6ff 40%, #ffffff 100%);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto;
   display: flex;

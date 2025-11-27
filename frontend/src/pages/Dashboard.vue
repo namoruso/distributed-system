@@ -45,11 +45,6 @@ function getUserInitials() {
     <!-- Navbar Integrado -->
     <nav class="dashboard-navbar">
       <div class="navbar-content">
-        <!-- Logo y Brand -->
-        <div class="navbar-brand">
-          <div class="logo">🚀</div>
-          <h1 class="brand-text">Distribuido</h1>
-        </div>
 
         <!-- Menú de Navegación -->
         <ul class="nav-menu">
@@ -86,12 +81,7 @@ function getUserInitials() {
           </div>
           
           <div class="navbar-actions">
-            <button class="icon-btn" title="Notificaciones">
-              <span class="icon">🔔</span>
-              <span class="notification-badge">3</span>
-            </button>
             <button class="logout-btn" @click="logout" title="Cerrar Sesión">
-              <span class="logout-icon">🚪</span>
               Salir
             </button>
           </div>
@@ -109,10 +99,6 @@ function getUserInitials() {
             <p class="subtitle">Panel de control del sistema distribuido</p>
           </div>
           <div class="header-actions">
-            <button class="btn-primary">
-              <span class="btn-icon">➕</span>
-              Nueva Acción
-            </button>
           </div>
         </div>
 
@@ -176,46 +162,9 @@ function getUserInitials() {
                 <div class="action-arrow">→</div>
               </router-link>
 
-              <div class="action-card coming-soon">
-                <div class="action-icon">📈</div>
-                <div class="action-content">
-                  <h3>Reportes</h3>
-                  <p>Estadísticas y análisis</p>
-                </div>
-                <div class="action-badge">Próximamente</div>
-              </div>
-
-              <div class="action-card coming-soon">
-                <div class="action-icon">👥</div>
-                <div class="action-content">
-                  <h3>Usuarios</h3>
-                  <p>Gestión de permisos</p>
-                </div>
-                <div class="action-badge">Próximamente</div>
-              </div>
             </div>
           </div>
 
-          <!-- Información del Sistema -->
-          <div class="system-info">
-            <div class="info-card">
-              <h3>Información del Sistema</h3>
-              <div class="info-list">
-                <div class="info-item">
-                  <span class="info-label">Sistema:</span>
-                  <span class="info-value">Distribuido v1.0</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Estado:</span>
-                  <span class="info-value status-active">Operativo</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Última actualización:</span>
-                  <span class="info-value">Hace 2 horas</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </main>
