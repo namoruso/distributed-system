@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize)]
 pub struct InventoryPayload {
     pub name: String,
-    pub initial: Option<i32>,
+    pub stock: Option<i32>,
     pub minimun: Option<i32>,
     pub maximun: Option<i32>,
     pub status: Option<bool>
@@ -32,11 +32,11 @@ pub struct StockUpdate {
 impl InventoryPayload {
     pub fn validate(&self) -> Result<Vec<i32>, Error> {
 
-        let init = self.initial.unwrap_or(0);
         let min = self.minimun.unwrap_or(0);
+        let stock = self.stock.unwrap_or(min);
         let max = self.maximun.unwrap_or(min+1);
 
-        if min > max || init > max || init < min {
+        if min > max || stock > max || stock < min {
             return Err(Error::new(
                 ErrorKind::InvalidData,
                 "El mínimo no puede ser mayor al stock o el stock y minimo no pueden ser mayor que el máximo",
@@ -50,6 +50,6 @@ impl InventoryPayload {
             ));
         }
 
-        Ok(vec![init, max, min])
+        Ok(vec![stock, max, min])
     }
 }

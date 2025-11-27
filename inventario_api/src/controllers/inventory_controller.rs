@@ -89,8 +89,8 @@ pub async fn get_product_by_id(id: Path<i32>) -> impl IntoResponse {
             return (StatusCode::OK, Json(json!(record)));
         },
         Err(error) => {
-            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
-            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al obtener los datos o producto inexistente"}))) 
+            eprintln!("{}: Error en la BD: {}",StatusCode::NOT_FOUND, error);
+            return (StatusCode::NOT_FOUND, Json(json!({"message": "Error al obtener los datos o producto inexistente"}))) 
         }
     }
 }

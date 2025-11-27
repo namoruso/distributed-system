@@ -39,7 +39,7 @@ pub async fn update_product_by_id(Path(id): Path<i32>, payload: Result<Json<Inve
         minimun = $4,
         status = $5,
         updated_at = NOW() WHERE id = $6
-        RETURNING id, name
+        RETURNING id, name, stock, maximun, minimun, status, updated_at
         "#,
         data.name,values[0],values[1],values[2],status_product,id 
     ).fetch_one(&pool).await;
@@ -50,6 +50,11 @@ pub async fn update_product_by_id(Path(id): Path<i32>, payload: Result<Json<Inve
             let res = json!({
                 "id": record.id,
                 "name": record.name,
+                "stock": record.stock,
+                "maximun": record.maximun,
+                "minimun": record.minimun,
+                "status": record.status,
+                "updated_at": record.updated_at,
                 "message": "Se ha actualizado el producto exitosamente".to_string()
             });
 

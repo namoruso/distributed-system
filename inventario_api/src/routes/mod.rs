@@ -1,6 +1,6 @@
 use axum::{Router, routing::{get, post, put}};
 
-use crate::controllers::inventory_controller::{add_new_product, get_all_products, get_product_by_id};
+use crate::{controllers::inventory_controller::{add_new_product, get_all_products, get_product_by_id}, middleware::cors_config};
 use crate::controllers::update_inventory_controller::{change_by_id, update_product_by_id};
 
 pub fn api_router() -> Router{
@@ -10,4 +10,5 @@ pub fn api_router() -> Router{
     .route("/all", get(get_all_products))
     .route("/update/:id", put(update_product_by_id))
     .route("/update/:id/:mode", put(change_by_id))
+    .layer(cors_config())
 }
