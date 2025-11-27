@@ -200,7 +200,7 @@ POST /api/inventory/add
 {
     "name": "laptop",
     "minimun": 12,
-    "initial": 20,
+    "stock": 20,
     "maximun": 80,
     "status": false
 }
