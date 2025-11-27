@@ -1,243 +1,288 @@
-# .
+# Frontend Vue.js - Distributed Microservices System
+
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/namoruso/distributed-system/frontend) 
+[![Vue.js](https://img.shields.io/badge/Vue.js-3.x-green.svg)](https://vuejs.org/)
+[![Vue Router](https://img.shields.io/badge/Vue_Router-4.x-red.svg)](https://router.vuejs.org/)
+[![Pinia](https://img.shields.io/badge/Pinia-2.x-yellow.svg)](https://pinia.vuejs.org/)
+[![Axios](https://img.shields.io/badge/Axios-1.x-lightgrey.svg)](https://axios-http.com/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+A modern Vue.js frontend application that consumes three independent microservices (Auth, Products, Inventory) in a distributed system architecture with JWT authentication.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [System Architecture](#system-architecture)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Development](#development)
+- [Microservices Integration](#microservices-integration)
+- [API Communication](#api-communication)
+- [Authentication Flow](#authentication-flow)
+- [Components Documentation](#components-documentation)
+- [State Management](#state-management)
+- [Routing](#routing)
+- [Styling](#styling)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+
+---
+
+## Overview
+
+**Distributed System Frontend** is a Vue.js single-page application that serves as the user interface for a microservices-based distributed system. It provides seamless integration with three independent backend services through a unified and responsive interface.
+
+**Key Capabilities:**
+- **JWT Authentication** with persistent sessions
+- **Product Management** with full CRUD operations
+- **Inventory Control** with real-time stock updates
+- **Microservices Communication** via dedicated API clients
+- **Route Protection** with authentication guards
+- **State Management** with Pinia stores
+
+**Base URL:** `http://localhost:5173`
+
+---
+
+## System Architecture
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer - Vue.js Application"
+        A[Vue 3 SPA] --> B[Vue Router]
+        A --> C[Pinia Store]
+        A --> D[Components]
+    end
+
+    subgraph "API Communication Layer"
+        B --> E[Axios Instances]
+        E --> F[Auth Service]
+        E --> G[Products Service]
+        E --> H[Inventory Service]
+    end
+
+    subgraph "Backend Microservices"
+        F[FastAPI Auth<br/>localhost:8000]
+        G[Laravel Products<br/>localhost:8001]
+        H[Rust Inventory<br/>localhost:5002]
+    end
+
+    subgraph "Data Storage"
+        F --> I[(PostgreSQL)]
+        G --> J[(PostgreSQL)]
+        H --> K[(PostgreSQL)]
+    end
+
+    style A fill:#4CAF50
+    style F fill:#2196F3
+    style G fill:#FF9800
+    style H fill:#F44336
+```
+#  Features
+
+###  **Authentication**
+- Login
+- Registration
+- Email verification code (from Auth Service)
+- Persistent session using `localStorage`
+- Automatic logout on invalid/expired tokens
+
+###  **Products Module**
+- List all products
+- View details
+- Create, update, delete products
+- Protected via JWT
+
+###  **Inventory Module**
+- View inventory for all products
+- Update stock levels (increment / decrement)
+- Protected via JWT
 
-src/
- ├─ api/                         ← comunicación con microservicios
- │    └─ axiosAuth.js                ← instancia de axios con interceptores para el login y registro
- │	   └─ axiosProducts.js   contiene la configuración HTTP (baseURL, interceptores) y funciones de alto nivel para las operaciones.
-       └─ axiosInventory.js vacia por los momentos
- ├─ assets/                      ← imágenes, íconos y recursos estáticos, 
- │
- ├─ components/                  ← componentes reutilizables
- │    └─ Navbar.vue
- │
- ├─ pages/                       ← pantallas principales de la aplicación
- │    ├─ Login.vue               ← formulario de inicio de sesión
- │    ├─ Register.vue            ← formulario de registro
- │    ├─ Verify.vue              ← verificación del código enviado por correo
- │    ├─ Dashboard.vue           ← perfil básico del usuario autenticado
- │    ├─ Products.vue            ← sin funcionar aun
- │    └─ Inventory.vue           ← pantalla (por completar) para stock del inventario
- │
- ├─ router/
- │    └─ index.js                ← configuración de rutas y guards de autenticación
- │
- ├─ store/                       ← Pinia para el manejo global del estado
- │    └─ auth.js                 ← gestión del token JWT y logout
- │    └─  verify.js hecho para que se pueda guardar el correo y completarlo en verify.vue
- ├─ styles/                      ← estilos modulares organizados por vistas
- │    ├─ main.css
- │    ├─ auth.css
- │    ├─ dashboard.css
- │    ├─ navbar.css
- │    ├─ products.css ya lleno 
- │    └─ inventory.css
- │
- ├─ utils/                       ← espacio reservado para funciones auxiliares, sin usarse actualmente
- │
- ├─ App.vue                      ← componente raíz con Navbar condicional
- ├─ index.html                   ← punto de entrada del proyecto
- ├─ main.js                      ← inicialización de Vue, Router y Pinia
- ├─ .gitignore
- └─ README.md
+### **Microservice Integration**
+- Independent Axios instance per backend
+- Automatic token injection
+- Error handling and redirection
 
-Reporte detallado del progreso
-Configuración inicial del proyecto
+###  **User Interface**
+- Responsive layout
+- Modular CSS scoped per view
+- Reusable components (Navbar, Footer)
 
-Se creó un proyecto Vue 3 mediante Vite y se organizó una estructura modular basada en buenas prácticas:
+---
 
-Páginas separadas para cada vista principal.
+# 🛠 Technologies
 
-Componentes reutilizables en su propia carpeta.
+| Category | Technology |
+|---------|------------|
+| Framework | Vue 3 |
+| Routing | Vue Router |
+| Global State | Pinia |
+| HTTP Client | Axios |
+| Styling | Modular CSS |
+| Authentication | JWT (via microservices) |
 
-Estilos separados en archivos independientes dentro de styles/.
+---
 
-Router y Store configurados desde el inicio.
+# Requirements
 
-Axios centralizado para todas las peticiones a los microservicios.
+Before running the project, install:
 
-Esta estructura permite escalabilidad, claridad y soporte para múltiples microservicios.
+- **Node.js** (v16+ recommended)
+- **NPM**
+- The 3 backend microservices running locally:  
+  - FastAPI Auth (`http://localhost:8000/api`)  
+  - Laravel Products (`http://localhost:8001/api`)  
+  - Rust Inventory (`http://localhost:5002/api`)
 
-2. Configuración de Pinia para autenticación
+---
 
-Se implementó un store de autenticación ubicado en src/store/auth.js.
-Este store maneja:
+#  Installation
 
-Almacenamiento del token JWT.
+Follow these steps:
 
-Persistencia del token en localStorage mientras que luego lo edito a la base de datos
-esto era mientras tanto
+```bash
+# Clone repository
+git clone https://github.com/yourusername/distributed-system-frontend.git
+cd distributed-system-frontend
 
-Funcionalidad de logout.
+# Install dependencies
+npm install
 
-Base para futuras acciones relacionadas con usuario autenticado.
-
-El store está correctamente integrado en main.js con app.use(createPinia()) aunque debe cambiarse
-
-3. Implementación del Router con protección de rutas
-
-Se configuró Vue Router con:
-
-Rutas para login, registro, verificación, dashboard, productos e inventario.
-
-Un “guard” global beforeEach que verifica el token.
-
-Redirección automática a /login si el usuario no está autenticado.
-
-Redirección por defecto a /dashboard aunque el dashboard solo se redirige, no esta funcional
-
-4. Navbar dinámico
-
-El componente Navbar.vue esta creado pero aun no esta funcional
-
-Enlaces hacia las secciones principales.
-
-Función de cierre de sesión.
-
-
-5. Implementación del login real contra FastAPI
-
-Se creó el archivo api/axios.js, el cual:
-
-Incluye baseURL apuntando al microservicio FastAPI.
-
-Agrega automáticamente el token Authorization mediante interceptores.
-
-
-En Login.vue se integró el endpoint real /api/login.
-El usuario inicia sesión solo si cumple los requisitos del backend (estar verificado y usar credenciales correctas).
-
-6. Registro con validación desde el backend
-
-Register.vue quedó conectado a /api/registro.
-Se agregó redirección automática hacia la pantalla de verificación después del registro.
-
-7. Implementación completa de la verificación de correo
-
-Se creó la pantalla Verify.vue, que permite:
-
-Enviar el código recibido por correo al endpoint /api/verificar.
-
-Reenviar el código mediante /api/reenviar.
-
-Notificar al usuario si el código es incorrecto, expirado o si ya ha sido verificado.
-
-Con esto, se completó el flujo de autenticación completo.
-http://localhost:8025/ para poder ir a mailhog para obtener el codigo de verificacion
-8. Visualización del usuario autenticado
-
-En Dashboard.vue se integró el endpoint /api/me para mostrar:
-
-ID del usuario
-
-Nombre
-
-Correo
-
-Estado de verificación
-
-Esto permite confirmar que el token es válido y que los interceptores funcionan correctamente.
-
-Estado del microservicio FastAPI (Auth)
-
-pero falta por revisar
-Se analizaron y confirmaron los siguientes puntos:
-
-El proyecto se ejecuta mediante Docker usando uvicorn.
-
-
-Funcionalidades implementadas:
-
-Registro con validación de contraseña.
-
-Generación de código de verificación.
-
-Envío de correo a través de Mailhog.
-
-Reenvío de código.
-
-Verificación de cuenta.
-
-Login con JWT mediante python-jose.
-
-Endpoint /me autenticado con JWT.
-
-
-
-Próximos pasos 
-Implementar el CRUD de productos cuando se tenga disponible la API en Laravel.
-
-Implementar la vista de inventario una vez que esté disponible la API en Rust.
-
-Revisar y mejorar los estilos del frontend cuando toda la funcionalidad esté estable.
-
-
-Ampliación del sistema de APIs del frontend
-
-La carpeta src/api/ fue ampliada para manejar múltiples microservicios:
-
-axiosAuth.js → FastAPI (autenticación)
-
-axiosProducts.js → Laravel (CRUD de productos)
-
-axiosInventory.js → Rust (gestión de inventario)
-
-index.js → Punto central que unifica todos los microservicios
-
-Esto crea una capa de comunicación más limpia y profesional, facilitando el mantenimiento y la escalabilidad del sistema distribuido.
-
-
-4. Mejoras funcionales en la experiencia del usuario
-
-Se añadieron elementos que mejoran significativamente la UX:
-
-Animación de transición entre pantallas (fade + slide up)
-
-Labels flotantes listas para integrarse si se desea
-
-Indicadores visuales de interacción
-
-Páginas coherentes entre sí en cuanto a diseño y estructura
-
-Gracias a estas mejoras, las pantallas se sienten fluidas y de aplicación real.
-
-5. Flujo de autenticación completo implementado
-
-El frontend ya soporta todo el flujo del microservicio FastAPI:
-
-Registro con validación de datos
-
-Almacenamiento del usuario en JSON (manejando ID incremental) mientras tanto
-
-Envío y reenvío de código de verificación vía Mailhog
-
-Verificación del código con expiración de seguridad
-
-Login real con JWT
-
-Persistencia del token mediante Pinia + LocalStorage
-
-Protección de rutas privadas mediante guard en Vue Router
-
-Obtención del usuario autenticado vía /api/me
-
-Aunque aún falta conectar FastAPI para pruebas reales, el frontend ya está preparado y funcional a nivel de lógica.
-
-
-
-7. Integración futura pendiente (cuando los microservicios estén listos)
-
-El proyecto ya tiene preparada la estructura para integrar:
-
-
-Actualmente solo esta conectado con FastApi
-
-
-requerimientos que hasta los momentos he usado 
+# Required libraries
 npm install vue-router
 npm install pinia
 npm install axios
 
+# Run development server
+npm run dev
+```
+
+
+
+The application will be available at:
+
+http://localhost:5173
+
 This template should help get you started developing with Vue 3 in Vite.
+
+# Microservices Integration
+Service	Base URL	Axios File
+Auth Service	http://localhost:8000/api	axiosAuth.js
+Products Service	http://localhost:8001/api	axiosProducts.js
+Inventory Service	http://localhost:5002/api	axiosInventory.js
+
+All protected endpoints require:
+
+Authorization: Bearer <token>
+
+API Client Architecture
+Each microservice has a dedicated Axios instance with:
+
+``` javascript
+// Example: axiosAuth.js
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+})
+ ```
+
+Authentication Headers
+All protected endpoints require JWT tokens:
+
+http
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+API Communication
+Request Interceptors
+Automatic token injection for authenticated requests:
+
+``` javascript
+api.interceptors.request.use((config) => {
+  const authStore = useAuthStore()
+  const token = authStore.token
+    
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+    
+  return config
+})
+```
+Response Interceptors
+Centralized error handling and token management:
+
+```javascript
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      const authStore = useAuthStore()
+      authStore.logout()
+      router.push('/login')
+    }
+    return Promise.reject(error)
+  }
+)
+```
+
+High-Level API Functions
+Each service exports convenient functions:
+
+```javascript
+// Products service functions
+export async function listProducts(params = {}) {
+  return productsApi.get('/products', { params })
+}
+
+export async function createProduct(payload) {
+  return productsApi.post('/products', payload)
+}
+
+// Inventory service functions  
+export async function updateStock(id, mode, payload) {
+  return inventoryApi.put(`/inventory/update/${id}/${mode}`, payload)
+}
+```
+
+
+# Styling Architecture
+## CSS Module Structure
+### main.css: 
+Global styles and CSS variables
+
+### auth.css: 
+Authentication page styles
+
+### 
+dashboard.css: Dashboard layout and components
+
+### navbar.css:
+ Navigation component styles
+
+### products.css: 
+Product management interfaces
+
+### inventory.css: 
+Inventory control styles
+
+### Design Principles
+Modularity: Scoped styles per feature
+
+### Consistency: 
+CSS variables for theming
+
+
+### Accessibility:
+ Semantic HTML and ARIA labels
 
 ## Recommended IDE Setup
 
@@ -273,3 +318,145 @@ npm run dev
 ```sh
 npm run build
 ```
+``` ## Authentication Flow
+┌─────────────────────────────────────────────────────────┐
+│ User Interface │
+│ (Vue.js Frontend Application) │
+└────────────────────┬────────────────────────────────────┘
+│
+│ User Actions & HTTP Requests
+│
+┌────────────────────▼────────────────────────────────────┐
+│ Vue Router Layer │
+│ │
+│ ┌──────────────────────────────────────────────────┐ │
+│ │ Route Guards │ │
+│ │ • Check authentication state │ │
+│ │ • Redirect unprotected routes │ │
+│ │ • Handle navigation events │ │
+│ └──────────────┬───────────────────────────────────┘ │
+│ │ │
+│ ┌──────────────▼───────────────────────────────────┐ │
+│ │ Pinia Store │ │
+│ │ │ │
+│ │ ┌─────────────────────────────────────────────┐ │ │
+│ │ │ Auth Store │ │ │
+│ │ │ • Token management │ │ │
+│ │ │ • User state │ │ │
+│ │ │ • Persistence (localStorage) │ │ │
+│ │ └─────────────────────────────────────────────┘ │ │
+│ │ │ │
+│ │ ┌─────────────────────────────────────────────┐ │ │
+│ │ │ Verify Store │ │ │
+│ │ │ • Email verification state │ │ │
+│ │ │ • Temporary data storage │ │ │
+│ │ └─────────────────────────────────────────────┘ │ │
+│ └──────────────┬───────────────────────────────────┘ │
+└─────────────────┼───────────────────────────────────────┘
+│
+│ Axios HTTP Requests with JWT
+│
+┌─────────────────▼────────────────────────────────────┐
+│ API Communication Layer │
+│ │
+│ ┌──────────────────────────────────────────────────┐│
+│ │ Axios Interceptors ││
+│ │ ││
+│ │ Request Interceptors: ││
+│ │ • Automatic token injection ││
+│ │ • Content-type headers ││
+│ │ ││
+│ │ Response Interceptors: ││
+│ │ • 401 error handling ││
+│ │ • Automatic logout ││
+│ │ • Token refresh logic ││
+│ └──────────────┬───────────────────────────────────┘│
+│ │ │
+│ ┌──────────────▼───────────────────────────────────┐│
+│ │ Service Instances ││
+│ │ ││
+│ │ ┌─────────────────────────────────────────────┐ ││
+│ │ │ Auth API Client │ ││
+│ │ │ • BaseURL: localhost:8000/api │ ││
+│ │ │ • Login/Register/Verify endpoints │ ││
+│ │ └─────────────────────────────────────────────┘ ││
+│ │ ││
+│ │ ┌─────────────────────────────────────────────┐ ││
+│ │ │ Products API Client │ ││
+│ │ │ • BaseURL: localhost:8001/api │ ││
+│ │ │ • CRUD operations │ ││
+│ │ └─────────────────────────────────────────────┘ ││
+│ │ ││
+│ │ ┌─────────────────────────────────────────────┐ ││
+│ │ │ Inventory API Client │ ││
+│ │ │ • BaseURL: localhost:5002/api │ ││
+│ │ │ • Stock management │ ││
+│ │ └─────────────────────────────────────────────┘ ││
+│ └──────────────┬───────────────────────────────────┘│
+└─────────────────┼────────────────────────────────────┘
+│
+│ HTTP/HTTPS + JWT Tokens
+│
+┌─────────────────▼────────────────────────────────────┐
+│ Backend Microservices │
+│ │
+│ ┌─────────────────┐ ┌─────────────────┐ ┌─────────┐│
+│ │ Auth Service │ │ Products Service│ │Inventory││
+│ │ (FastAPI) │ │ (Laravel) │ │ Service ││
+│ │ Port: 8000 │ │ Port: 8001 │ │(Rust) ││
+│ │ │ │ │ │Port:5002││
+│ │ • User reg │ │ • Product CRUD │ │• Stock ││
+│ │ • JWT generation│ │ • Validation │ │ control ││
+│ │ • Email verify │ │ • Business logic│ │• Levels ││
+│ └─────────────────┘ └─────────────────┘ └─────────┘│
+└───────────────────────────────────────────────────────┘
+```
+
+src/
+ ├─ api/                         ← Axios instances per microservice
+ │    ├─ axiosAuth.js
+ │    ├─ axiosProducts.js
+ │    └─ axiosInventory.js
+ │    └─ index.js                ← central export of all APIs
+ │
+ ├─ assets/
+ │    └─ images/
+ │         ├─ fondo.png
+ │         ├─ banner.png
+ │         └─ logo.svg
+ │
+ ├─ components/
+ │    ├─ AppNavbar.vue
+ │    └─ AuthFooter.vue
+ │
+ ├─ pages/
+ │    ├─ Login.vue
+ │    ├─ Register.vue
+ │    ├─ Verify.vue
+ │    ├─ Dashboard.vue
+ │    ├─ Products.vue
+ │    └─ Inventory.vue
+ │
+ ├─ router/
+ │    └─ index.js
+ │
+ ├─ store/
+ │    ├─ auth.js        ← manages JWT and user session
+ │    └─ verify.js      ← stores email for verification
+ │
+ ├─ styles/
+ │    ├─ main.css
+ │    ├─ auth.css
+ │    ├─ dashboard.css
+ │    ├─ navbar.css
+ │    ├─ products.css
+ │    └─ inventory.css
+ │
+ ├─ utils/              ← future helper functions
+ │
+ ├─ App.vue
+ ├─ main.js
+ ├─ index.html
+ └─ README.md
+
+Built with ❤️ using Vue and Docker
