@@ -1,4 +1,3 @@
-//veras mis comentarios :D
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 

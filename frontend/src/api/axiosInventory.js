@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '../store/auth'
 
 const inventoryApi = axios.create({
-  baseURL: 'http://localhost:5002/api',
+  baseURL: import.meta.env.VITE_INVENTORY_API_URL || 'http://localhost:5002/api',
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json'
