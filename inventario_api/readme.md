@@ -92,8 +92,7 @@ DB_PORT=port
 
 PORT=5002
 
-HASH=hash
-TOKEN=token
+JWT_SECRET_KEY=token
 
 ## API Reference
 
@@ -105,6 +104,12 @@ Retrieves a list of all products and stock.
 
 ```http
 GET /api/inventory/all
+```
+
+**Headers**
+
+```http
+Authorization: Bearer {token}
 ```
 
 **Example Response** - `200 OK`
@@ -142,6 +147,12 @@ Retrieves details of a specific product by ID.
 
 ```http
 GET /api/inventory/{id}
+```
+
+**Headers**
+
+```http
+Authorization: Bearer {token}
 ```
 
 **Path Parameters**
@@ -182,6 +193,12 @@ Creates a new product.
 
 ```http
 POST /api/inventory/add
+```
+
+**Headers**
+
+```http
+Authorization: Bearer {token}
 ```
 
 **Request Body**
@@ -225,6 +242,12 @@ Updates an existing product.
 
 ```http
 PUT /api/inventory/update/{id}
+```
+
+**Headers**
+
+```http
+Authorization: Bearer {token}
 ```
 
 **Path Parameters**
@@ -273,12 +296,26 @@ All fields are optional. Only include fields you want to update.
 }
 ```
 
+**Error Response** - `404 Not Found`
+
+```json
+{
+    "message": "Error al obtener los datos o producto inexistente"
+}
+```
+
 ---
 
 update actual stock of a product
 
 ```http
 PUT /api/inventory/update/{id}/{mode}
+```
+
+**Headers**
+
+```http
+Authorization: Bearer {token}
 ```
 
 **Path Parameters**
@@ -315,6 +352,14 @@ All fields are optional. Only include fields you want to update.
 }
 ```
 
+**Error Response** - `404 Not Found`
+
+```json
+{
+    "message": "Error al obtener los datos o producto inexistente"
+}
+```
+
 ---
 
 ### HTTP Status Codes
@@ -341,7 +386,7 @@ All fields are optional. Only include fields you want to update.
 
 ## Changelog
 
-### [1.0.1] - 2025-11-27
+### [1.0.2] - 2025-11-28
 
 #### Added
 

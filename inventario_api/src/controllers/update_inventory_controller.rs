@@ -61,8 +61,8 @@ pub async fn update_product_by_id(Path(id): Path<i32>, payload: Result<Json<Inve
             return (StatusCode::OK, Json(res));
         },
         Err(error) => {
-            eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
-            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al  actualizar los datos o producto inexistente"}))) 
+            eprintln!("{}: Error en la BD: {}",StatusCode::NOT_FOUND, error);
+            return (StatusCode::NOT_FOUND, Json(json!({"message": "Error al actualizar los datos o producto inexistente"}))) 
         }
     }
 }

@@ -9,11 +9,11 @@ pub struct Claims {
     pub rol: String
 }
 
-pub fn get_token_data(req_data: Option<Authorization<Bearer>>) -> Result<Claims, Error>{
+pub fn get_token_data(auth: Option<Authorization<Bearer>>) -> Result<Claims, Error>{
     let secret_token = env::var("JWT_SECRET_KEY").expect("JWT no encontrado");
     let decoding = DecodingKey::from_secret(secret_token.as_ref());
 
-    let jwt = match req_data {
+    let jwt = match auth {
         Some(header) => header.token().to_owned(),
         None => return Err(Error::new(std::io::ErrorKind::PermissionDenied, "Token faltante o formato incorrecto"))
     };

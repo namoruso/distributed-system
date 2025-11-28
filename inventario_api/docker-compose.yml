@@ -26,7 +26,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     ports:
-      - 5435:5432
+      - 5437:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d inventario_db"]
       interval: 10s

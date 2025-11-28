@@ -1,6 +1,6 @@
 pub mod token;
 
-use axum::{body::Body, http::{Method, Request, StatusCode}, middleware::Next, response::{IntoResponse, Response}};
+use axum::{body::Body, http::{Method, Request, StatusCode, header::CONTENT_TYPE}, middleware::Next, response::{IntoResponse, Response}};
 use axum_extra::headers::{Authorization, HeaderMapExt, authorization::Bearer};
 use tower_http::cors::{Any, CorsLayer};
 
@@ -15,34 +15,39 @@ pub fn cors_config() -> CorsLayer {
     return cors;
 }
 
-pub async fn user_validate(mut req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
-    let req_data = req.headers().typed_get::<Authorization<Bearer>>();
-
-    match get_token_data(req_data) {
-       Ok(info) => {
-            if info.rol != "worker" && info.rol != "user" {
-              return Ok((StatusCode::UNAUTHORIZED, "Rol erroneo").into_response())  
-            }
-            req.extensions_mut().insert(info.rol);
-            let response = next.run(req).await;
-            return Ok(response)
-       },
-       Err(error) =>  return Ok((StatusCode::UNAUTHORIZED, error.to_string()).into_response())
-    };
+pub async fn user_validate(req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
+    return validate_request(req, next, &["admin".to_string(), "user".to_string()]).await;
 }
 
-pub async fn worker_validate(mut req: Request<Body>, next: Next) -> Result<Response, StatusCode>{
-    let req_data = req.headers().typed_get::<Authorization<Bearer>>();
+pub async fn worker_validate(req: Request<Body>, next: Next) -> Result<Response, StatusCode>{
+    return validate_request(req, next, &["admin".to_string()]).await;
+}
 
-    match get_token_data(req_data) {
+async fn validate_request(req: Request<Body>, next: Next, rols: &[String])  -> Result<Response, StatusCode> {
+    let headers = req.headers();
+    let auth = headers.typed_get::<Authorization<Bearer>>();
+
+    let validate_content = headers.get(CONTENT_TYPE)
+    .map(|val| val.as_bytes().to_ascii_lowercase()) 
+    .map(|val| val == b"application/json")
+    .unwrap_or(false);
+
+    if !validate_content {
+        return Ok((StatusCode::UNAUTHORIZED, "headers erroneos o faltantes").into_response()) 
+    }
+
+    match get_token_data(auth) {
        Ok(info) => {
-        if info.rol != "worker" {
+        if !rols.contains(&info.rol) {
+            eprintln!("{}: Error rol erroneo", StatusCode::UNAUTHORIZED);  
             return Ok((StatusCode::UNAUTHORIZED, "Error: No posee autorización").into_response())
         }
-        req.extensions_mut().insert(info.rol);
         let response = next.run(req).await;
         return Ok(response)
        },
-       Err(error) =>  return Ok((StatusCode::UNAUTHORIZED, error.to_string()).into_response())
+       Err(error) =>  {
+            eprintln!("{}: {}", StatusCode::UNAUTHORIZED, error.to_string());  
+            return Ok((StatusCode::UNAUTHORIZED, error.to_string()).into_response())
+       }
     };
 }
