@@ -15,6 +15,23 @@ pub fn cors_config() -> CorsLayer {
     return cors;
 }
 
+pub async fn headers_content_validation(req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
+    let headers = req.headers();
+
+    let validate_content = headers.get(CONTENT_TYPE)
+    .map(|val| val.as_bytes().to_ascii_lowercase()) 
+    .map(|val| val == b"application/json")
+    .unwrap_or(false);
+
+    if !validate_content {
+        eprintln!("{}: Headers errorneos",StatusCode::UNAUTHORIZED);
+        return Ok((StatusCode::UNAUTHORIZED, "headers erroneos o faltantes").into_response()) 
+    }
+
+    let response = next.run(req).await;
+    return Ok(response)
+}
+
 pub async fn user_validate(req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
     return validate_request(req, next, &["admin".to_string(), "user".to_string()]).await;
 }
@@ -26,15 +43,6 @@ pub async fn worker_validate(req: Request<Body>, next: Next) -> Result<Response,
 async fn validate_request(req: Request<Body>, next: Next, rols: &[String])  -> Result<Response, StatusCode> {
     let headers = req.headers();
     let auth = headers.typed_get::<Authorization<Bearer>>();
-
-    let validate_content = headers.get(CONTENT_TYPE)
-    .map(|val| val.as_bytes().to_ascii_lowercase()) 
-    .map(|val| val == b"application/json")
-    .unwrap_or(false);
-
-    if !validate_content {
-        return Ok((StatusCode::UNAUTHORIZED, "headers erroneos o faltantes").into_response()) 
-    }
 
     match get_token_data(auth) {
        Ok(info) => {

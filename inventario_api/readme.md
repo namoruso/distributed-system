@@ -105,7 +105,6 @@ GET /api/inventory/all
 
 ```http
 Authorization: Bearer {token}
-Content-Type: application/json
 ```
 
 **Example Response** - `200 OK`
@@ -149,7 +148,6 @@ GET /api/inventory/{id}
 
 ```http
 Authorization: Bearer {token}
-Content-Type: application/json
 ```
 
 **Path Parameters**
