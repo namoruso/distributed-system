@@ -1,7 +1,6 @@
 use axum::{Json, extract::{Path, rejection::JsonRejection}, http::StatusCode, response::IntoResponse};
 use serde_json::json;
 use sqlx::{query, query_as};
-
 use crate::{database::get_pool, models::data::{InventoryPayload, Products, StockUpdate}};
 
 pub async fn update_product_by_id(Path(id): Path<i32>, payload: Result<Json<InventoryPayload>, JsonRejection>) -> impl IntoResponse {

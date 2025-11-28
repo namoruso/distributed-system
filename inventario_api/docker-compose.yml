@@ -8,12 +8,9 @@ services:
       - "5002:5002"
     environment:
       - RUST_LOG=info
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_HOST=db
-      - DB_DATABASE=inventario_db
-      - DB_PORT=5432
+      - DATABASE_URL=postgresql://postgres:password@db:5432/inventario_db
       - PORT=5002
+      - JWT_SECRET_KEY=token
 
     depends_on:
       db:

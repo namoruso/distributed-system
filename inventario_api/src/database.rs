@@ -1,5 +1,6 @@
 use sqlx::{PgPool, postgres::PgPoolOptions};
 use crate::models::inventory_table::inventory_table;
+use std::env;
 
 pub async fn init_db()  {
 
@@ -19,12 +20,7 @@ pub async fn init_db()  {
 }
 
 pub async fn get_pool() -> Result<PgPool,sqlx::Error> {
-    let db_user = std::env::var("DB_USER").expect("Error el usuario de la DB");
-    let db_password = std::env::var("DB_PASSWORD").expect("Error la contraseña de la DB");
-    let db_host = std::env::var("DB_HOST").expect("Error el host de la DB");
-    let db_database = std::env::var("DB_DATABASE").expect("Error la DB");
-    let db_port = std::env::var("DB_PORT").expect("Error el puerto de la DB");
-    let db_url = format!("postgresql://{}:{}@{}:{}/{}",db_user,db_password,db_host,db_port,db_database);
+    let db_url = env::var("DATABASE_URL").expect("Error al obtener el url");
 
     let connect = PgPoolOptions::new()
     .max_connections(5)  
