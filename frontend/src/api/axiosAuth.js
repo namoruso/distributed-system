@@ -4,7 +4,7 @@ import router from '../router'
 
 // crear instancia de axios para Auth
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:8000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -12,19 +12,20 @@ const api = axios.create({
   }
 })
 
+
 // interceptor para agregar el token automáticamente
 api.interceptors.request.use(
   (config) => {
     const authStore = useAuthStore()
     const token = authStore.token
     
-    console.log('Token que se enviará:', token) // Debug
+    
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-      console.log('Token agregado a headers') // Debug
+      
     } else {
-      console.log('No hay token disponible') // Debug
+      console.log('No hay token disponible') 
     }
     
     return config
@@ -40,7 +41,7 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
-    console.log(' Error en respuesta:', error.response?.status) // Debug
+    console.log(' Error en respuesta:', error.response?.status)
     
     if (error.response?.status === 401) {
       console.log('Token inválido o expirado, haciendo logout...')

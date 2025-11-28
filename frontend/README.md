@@ -26,11 +26,6 @@ A modern Vue.js frontend application that consumes three independent microservic
 - [State Management](#state-management)
 - [Routing](#routing)
 - [Styling](#styling)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
 
 ---
 
