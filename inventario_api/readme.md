@@ -11,21 +11,15 @@ A RESTful microservice for inventory management built with Rust-Axum and Postgre
 - [Overview](#overview)
 - [Features](#features)
 - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Configuration](#configuration)
 - [Authentication](#authentication)
 - [API Reference](#api-reference)
     - [Authentication Endpoints](#authentication-endpoints)
     - [Product Endpoints](#product-endpoints)
 - [Response Format](#response-format)
 - [Error Handling](#error-handling)
-- [Rate Limiting](#rate-limiting)
 - [Examples](#examples)
-- [Testing](#testing)
 - [Deployment](#deployment)
 - [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -43,6 +37,7 @@ The Products Service is a microservice designed to handle all product-related op
 
 - ✅ **Complete CRUD operations** for products
 - 🐘 **PostgreSQL database** with optimized queries
+- 🔐 **JWT Authentication**
 - 🐳 **Docker containerized** for easy deployment
 - 📝 **Input validation** and error handling
 - 🌐 **CORS enabled** for frontend integration
@@ -347,6 +342,7 @@ All fields are optional. Only include fields you want to update.
 
 - Complete CRUD operations for products
 - Input validation
+- JWT authentication system
 - Error handling
 - Docker containerization
 - PostgreSQL database integration
@@ -360,3 +356,4 @@ All fields are optional. Only include fields you want to update.
 - [Request Feature](https://github.com/namoruso/distributed-system/products-service/issues)
 
 ---
+Built with ❤️ using Axum and sqlx
