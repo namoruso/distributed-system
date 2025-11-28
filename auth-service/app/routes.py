@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Header, Body
 from typing import List
-from .schemas import RegReq, VerReq, LoginReq, TokenResp, UsuarioResp
+from .schemas import RegReq, VerReq, LoginReq, TokenResp, UsuarioResp, CambiarRolReq
 from . import db, utils, mailer
 from datetime import datetime, timedelta
 
@@ -22,6 +22,7 @@ def registro(req: RegReq):
         "nombre": req.nombre,
         "correo": req.correo,
         "claveHash": utils.hashClave(req.clave),
+        "rol": "user", 
         "verif": False,
         "codigo": codigo,
         "codigoExp": exp,
@@ -35,7 +36,7 @@ def registro(req: RegReq):
         mailer.enviar(req.correo, "Código verificación", f"Tu código es: {codigo}")
     except Exception:
         pass
-    return UsuarioResp(id=u.id, nombre=u.nombre, correo=u.correo, verif=u.verif)
+    return UsuarioResp(id=u.id, nombre=u.nombre, correo=u.correo, rol=u.rol, verif=u.verif)
 
 @router.post("/verificar")
 def verificar(req: VerReq):
@@ -87,7 +88,12 @@ def login(req: LoginReq):
         raise HTTPException(status_code=401, detail="usuario no verificado")
     if not utils.verificaClave(req.clave, getattr(u, "claveHash", "")):
         raise HTTPException(status_code=401, detail="credenciales invalidas")
-    token = utils.crearToken({"sub": str(u.id), "correo": u.correo})
+    
+    token = utils.crearToken({
+        "sub": str(u.id),
+        "correo": u.correo,
+        "rol": u.rol  
+    })
     return TokenResp(access_token=token)
 
 def obtenerPorToken(authorization: str = Header(...)):
@@ -109,8 +115,24 @@ def obtenerPorToken(authorization: str = Header(...)):
 
 @router.get("/me", response_model=UsuarioResp)
 def me(usuario = Depends(obtenerPorToken)):
-    return UsuarioResp(id=usuario.id, nombre=usuario.nombre, correo=usuario.correo, verif=usuario.verif)
+    return UsuarioResp(id=usuario.id, nombre=usuario.nombre, correo=usuario.correo, rol=usuario.rol, verif=usuario.verif)
+
+@router.put("/cambiar-rol")
+def cambiarRol(req: CambiarRolReq, usuario = Depends(obtenerPorToken)):
+    if usuario.rol != "admin":
+        raise HTTPException(status_code=403, detail="no tienes permisos")
+    
+    u = db.buscarCorreo(req.correo)
+    if not u:
+        raise HTTPException(status_code=404, detail="usuario no existe")
+    
+    db.actualizar(u.id, {"rol": req.rol})
+    
+    return {
+        "ok": True,
+        "mensaje": f"Rol de {req.correo} cambiado a {req.rol}"
+    }
 
 @router.get("/debug/lista", response_model=List[UsuarioResp])
 def lista():
-    return [UsuarioResp(id=u.id, nombre=u.nombre, correo=u.correo, verif=u.verif) for u in db.listar()]
+    return [UsuarioResp(id=u.id, nombre=u.nombre, correo=u.correo, rol=u.rol, verif=u.verif) for u in db.listar()]

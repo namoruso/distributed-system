@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
 class RegReq(BaseModel):
     nombre: str = Field(..., min_length=1)
@@ -22,4 +23,9 @@ class UsuarioResp(BaseModel):
     id: int
     nombre: str
     correo: EmailStr
+    rol: str  
     verif: bool
+
+class CambiarRolReq(BaseModel):
+    correo: EmailStr
+    rol: str = Field(..., pattern="^(admin|user)$") 

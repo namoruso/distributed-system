@@ -7,13 +7,14 @@ class Usuario(BaseModel):
     nombre: str
     correo: EmailStr
     claveHash: str
+    rol: str = "user"  
     verif: bool = False
     codigo: Optional[str] = None
     codigoExp: Optional[str] = None
     creado: str = datetime.utcnow().isoformat()
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
@@ -26,7 +27,8 @@ class UsuarioDB(Base):
     nombre = Column(String(150), nullable=False, unique=False)
     correo = Column(String(255), nullable=False, unique=True, index=True)
     claveHash = Column(String(512), nullable=False)
+    rol = Column(String(20), nullable=False, default="user")  # Nuevo campo: 'admin' o 'user'
     verif = Column(Boolean, default=False, nullable=False)
     codigo = Column(String(32), nullable=True)
     codigoExp = Column(DateTime, nullable=True)
-    creado = Column(DateTime, server_default=func.datetime('now'), nullable=False)
+    creado = Column(DateTime, server_default=func.now(), nullable=False)

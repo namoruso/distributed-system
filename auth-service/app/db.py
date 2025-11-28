@@ -21,6 +21,7 @@ def _filaAUsuario(fila: UsuarioDB):
         nombre = fila.nombre,
         correo = fila.correo,
         claveHash = fila.claveHash,
+        rol = fila.rol,  # Agregado
         verif = bool(fila.verif),
         codigo = fila.codigo,
         codigoExp = fila.codigoExp.isoformat() if fila.codigoExp else None,
@@ -72,6 +73,7 @@ def crear(obj: dict):
             nombre = obj.get("nombre"),
             correo = obj.get("correo").lower(),
             claveHash = obj.get("claveHash"),
+            rol = obj.get("rol", "user"),  # Agregado con default
             verif = bool(obj.get("verif", False)),
             codigo = obj.get("codigo"),
             codigoExp = None if not obj.get("codigoExp") else datetime.fromisoformat(obj.get("codigoExp")),
@@ -99,6 +101,8 @@ def actualizar(uid, cambios: dict):
             fila.correo = cambios.get("correo").lower()
         if "claveHash" in cambios:
             fila.claveHash = cambios.get("claveHash")
+        if "rol" in cambios:  # Agregado
+            fila.rol = cambios.get("rol")
         if "verif" in cambios:
             fila.verif = bool(cambios.get("verif"))
         if "codigo" in cambios:
