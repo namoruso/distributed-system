@@ -105,6 +105,7 @@ GET /api/inventory/all
 
 ```http
 Authorization: Bearer {token}
+Content-Type: application/json
 ```
 
 **Example Response** - `200 OK`
@@ -148,6 +149,7 @@ GET /api/inventory/{id}
 
 ```http
 Authorization: Bearer {token}
+Content-Type: application/json
 ```
 
 **Path Parameters**
@@ -194,6 +196,7 @@ POST /api/inventory/add
 
 ```http
 Authorization: Bearer {token}
+Content-Type: application/json
 ```
 
 **Request Body**
@@ -243,6 +246,7 @@ PUT /api/inventory/update/{id}
 
 ```http
 Authorization: Bearer {token}
+Content-Type: application/json
 ```
 
 **Path Parameters**
@@ -311,6 +315,7 @@ PUT /api/inventory/update/{id}/{mode}
 
 ```http
 Authorization: Bearer {token}
+Content-Type: application/json
 ```
 
 **Path Parameters**
