@@ -9,22 +9,21 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::all();
         
         return response()->json([
             'success' => true,
-            'data' => $products
+            'data' => $products,
+            'user' => [
+                'id' => $request->attributes->get('user_id'),
+                'email' => $request->attributes->get('user_email'),
+                'role' => $request->attributes->get('user_role')
+            ]
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -45,6 +44,13 @@ class ProductController extends Controller
 
         $product = Product::create($request->all());
 
+        \Log::info('Product created by admin', [
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'admin_id' => $request->attributes->get('user_id'),
+            'admin_email' => $request->attributes->get('user_email')
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Product created successfully',
@@ -52,9 +58,6 @@ class ProductController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $product = Product::find($id);
@@ -72,9 +75,6 @@ class ProductController extends Controller
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $product = Product::find($id);
@@ -104,6 +104,12 @@ class ProductController extends Controller
 
         $product->update($request->all());
 
+        \Log::info('Product updated by admin', [
+            'product_id' => $product->id,
+            'admin_id' => $request->attributes->get('user_id'),
+            'admin_email' => $request->attributes->get('user_email')
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Product updated successfully',
@@ -111,10 +117,7 @@ class ProductController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $product = Product::find($id);
 
@@ -124,6 +127,13 @@ class ProductController extends Controller
                 'message' => 'Product not found'
             ], 404);
         }
+
+        \Log::info('Product deleted by admin', [
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'admin_id' => $request->attributes->get('user_id'),
+            'admin_email' => $request->attributes->get('user_email')
+        ]);
 
         $product->delete();
 

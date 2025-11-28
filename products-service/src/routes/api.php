@@ -1,22 +1,37 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 
-Route::prefix('auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+Route::get('/health', function () {
+    return response()->json([
+        'success' => true,
+        'service' => 'Products Service',
+        'status' => 'healthy',
+        'timestamp' => now()->toIso8601String()
+    ]);
 });
 
 Route::middleware('jwt.auth')->group(function () {
 
-    Route::prefix('auth')->group(function () {
-        Route::get('/me', [AuthController::class, 'me']);
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/verify-token', function (Illuminate\Http\Request $request) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Token is valid',
+            'user_id' => $request->attributes->get('user_id'),
+            'user_email' => $request->attributes->get('user_email'),
+            'user_role' => $request->attributes->get('user_role'),
+        ]);
     });
 
-    Route::apiResource('products', ProductController::class);
+    Route::middleware(['role:user,admin'])->group(function () {
+        Route::get('/products', [ProductController::class, 'index']);         
+        Route::get('/products/{id}', [ProductController::class, 'show']);       
+    });
+
+    Route::middleware(['role:admin'])->group(function () {
+        Route::post('/products', [ProductController::class, 'store']);         
+        Route::put('/products/{id}', [ProductController::class, 'update']);   
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    });
 });
