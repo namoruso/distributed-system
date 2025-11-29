@@ -71,7 +71,7 @@ cd inventario_api
 docker-compose up -d --build
 ```
 
-7. **Verify installation**
+3. **Verify installation**
 
 Visit `http://localhost:5002`
 
@@ -79,11 +79,7 @@ Visit `http://localhost:5002`
 
 The service uses environment variables for configuration. Key settings in `.env`:
 
-DB_USER=postgres
-DB_PASSWORD=password
-DB_HOST=host
-DB_DATABASE=database
-DB_PORT=port
+DB_URL=postgresql://user:password@host:port/db
 
 PORT=5002
 
@@ -114,6 +110,7 @@ Authorization: Bearer {token}
     {
         "created_at": "2025-11-25T16:38:57.326855Z",
         "id": 1,
+        "sku": "unique_value",
         "maximun": 20,
         "minimun": 19,
         "name": "jabon",
@@ -124,6 +121,7 @@ Authorization: Bearer {token}
     {
         "created_at": "2025-11-25T16:51:06.467151Z",
         "id": 2,
+        "sku": "unique_value",
         "maximun": 100,
         "minimun": 10,
         "name": "queso",
@@ -163,6 +161,7 @@ Authorization: Bearer {token}
 {
     "created_at": "2025-11-25T19:16:23.771108Z",
     "id": 5,
+    "sku": "unique_value",
     "maximun": 100,
     "minimun": 19,
     "name": "ventiladores",
@@ -203,6 +202,7 @@ Content-Type: application/json
 |---|---|---|---|
 |`name`|string|Yes|Product name (max: 255 characters)|
 |`minimun`|integer|No|Minimum stock quantity (min: 0)|
+|`sku`|string|Yes|Unique Sku (max: 255 characters)|
 |`stock`|integer|No|Actual stock (minimun <= stock <= maximun) (min: minimun)|
 |`maximun`|integer|No|Maximun stock (min: minimun + 1)|
 |`status`|boolean|No|Product status (default: true)|
@@ -226,7 +226,8 @@ Content-Type: application/json
 {
     "id": 8,
     "message": "Se ha creado el producto exitosamente",
-    "name": "laptop"
+    "name": "laptop",
+    "sku": "unique value"
 }
 ```
 
