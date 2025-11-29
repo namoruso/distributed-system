@@ -6,6 +6,7 @@ pub async fn inventory_table(pool: &PgPool) -> Result<(), sqlx::Error> {
         "CREATE TABLE IF NOT EXISTS inventory (
             id SERIAL PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
+            sku VARCHAR(255) NOT NULL,
             stock INTEGER NOT NULL,
             minimun INTEGER NOT NULL,
             maximun INTEGER NOT NULL,

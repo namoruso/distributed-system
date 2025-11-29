@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize)]
 pub struct InventoryPayload {
     pub name: String,
+    pub sku: String,
     pub stock: Option<i32>,
     pub minimun: Option<i32>,
     pub maximun: Option<i32>,
@@ -17,6 +18,7 @@ pub struct Products {
     pub id: i32,
     pub name: String,
     pub stock: i32,
+    pub sku: String,
     pub minimun: i32,
     pub maximun: i32,
     pub created_at: DateTime<Utc>,

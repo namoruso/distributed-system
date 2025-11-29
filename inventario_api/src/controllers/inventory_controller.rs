@@ -1,6 +1,6 @@
 use axum::{Json, extract::{Path, rejection::JsonRejection}, http::StatusCode, response::IntoResponse};
 use serde_json::json;
-use sqlx::{query, query_as};
+use sqlx::{Error, query, query_as};
 
 use crate::{database::get_pool, models::data::{InventoryPayload, Products}};
 
@@ -8,17 +8,17 @@ pub async fn add_new_product(payload: Result<Json<InventoryPayload>, JsonRejecti
 
     let data = match payload {
         Ok(value) => value,
-        Err(_) => {
-            eprintln!("{}: Error en el json",StatusCode::BAD_REQUEST);
-            return (StatusCode::BAD_REQUEST, Json(json!({"message": "Datos faltantes o tipos erroneos".to_string()})))
+        Err(error) => {
+            eprintln!("{}: Error en el json: {}",StatusCode::BAD_REQUEST, error);
+            return (StatusCode::BAD_REQUEST, Json(json!({"message": "Datos faltantes".to_string()})))
         }
     };
 
     let values = match data.validate() {
         Ok(value) => value,
-        Err(e) =>{
-            eprintln!("{}: Error en los datos",StatusCode::BAD_REQUEST);
-            return (StatusCode::BAD_REQUEST, Json(json!({"message": e.to_string()})))
+        Err(error) =>{
+            eprintln!("{}: Error en los datos: {}", StatusCode::BAD_REQUEST, error);
+            return (StatusCode::BAD_REQUEST, Json(json!({"message": error.to_string()})))
         }
     };
 
@@ -34,11 +34,12 @@ pub async fn add_new_product(payload: Result<Json<InventoryPayload>, JsonRejecti
 
     let result = query!(
         r#"
-        INSERT INTO inventory (name, stock, maximun, minimun, status) 
-        VALUES ($1, $2, $3, $4, $5) 
-        RETURNING id, name
+        INSERT INTO inventory (name, sku, stock, maximun, minimun, status) 
+        VALUES ($1, $2, $3, $4, $5, $6) 
+        RETURNING id, name, sku
         "#,
         data.name,
+        data.sku,
         values[0],
         values[1],
         values[2],
@@ -50,6 +51,7 @@ pub async fn add_new_product(payload: Result<Json<InventoryPayload>, JsonRejecti
             let res = json!({
                 "id": record.id,
                 "name": record.name,
+                "sku": record.sku,
                 "message": "Se ha creado el producto exitosamente".to_string()
             });
             println!("{}: Producto creado",StatusCode::CREATED);
@@ -57,6 +59,12 @@ pub async fn add_new_product(payload: Result<Json<InventoryPayload>, JsonRejecti
         },
         Err(error) => {
             eprintln!("{}: Error en la BD: {}",StatusCode::INTERNAL_SERVER_ERROR, error);
+            if let Error::Database(db_err) = &error  {
+                if db_err.code().as_deref() == Some("23505") {
+                    return (StatusCode::CONFLICT, Json(json!({"message": "Sku ya existente"}))) 
+                }
+
+            }
             return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"message": "Error al guardar los datos"}))) 
         }
     }
