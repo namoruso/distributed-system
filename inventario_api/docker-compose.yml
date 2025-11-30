@@ -10,7 +10,8 @@ services:
       - RUST_LOG=info
       - DATABASE_URL=postgresql://postgres:password@db:5432/inventario_db
       - PORT=5002
-      - JWT_SECRET_KEY=token
+      - JWT_SECRET_KEY=MiSuperSecretKeyParaDistributed2025System!
+      - RUST_BACKTRACE=1
 
     depends_on:
       db:

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE inventory SET name = $1,\n        stock = $2,\n        maximun = $3,\n        minimun = $4,\n        status = $5,\n        updated_at = NOW() WHERE id = $6\n        RETURNING id, name, stock, maximun, minimun, status, updated_at\n        ",
+  "query": "\n        SELECT id, name, sku, stock, minimun, maximun, created_at, updated_at, status FROM inventory WHERE status != false\n        ",
   "describe": {
     "columns": [
       {
@@ -15,13 +15,13 @@
       },
       {
         "ordinal": 2,
-        "name": "stock",
-        "type_info": "Int4"
+        "name": "sku",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 3,
-        "name": "maximun",
-        "type_info": "Int8"
+        "name": "stock",
+        "type_info": "Int4"
       },
       {
         "ordinal": 4,
@@ -30,26 +30,31 @@
       },
       {
         "ordinal": 5,
-        "name": "status",
-        "type_info": "Bool"
+        "name": "maximun",
+        "type_info": "Int8"
       },
       {
         "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
         "name": "updated_at",
         "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "status",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": [
-        "Varchar",
-        "Int4",
-        "Int8",
-        "Int4",
-        "Bool",
-        "Int4"
-      ]
+      "Left": []
     },
     "nullable": [
+      false,
+      false,
       false,
       false,
       false,
@@ -59,5 +64,5 @@
       false
     ]
   },
-  "hash": "ff42ace6c0e8dc7d6aace1794f5fd615f1e5ad8a2c0b3708023adbcee3016e78"
+  "hash": "d4598df5e13b3bd8a8b92b658adc50d78a720cf9ce76c7da355a9543e7565bab"
 }

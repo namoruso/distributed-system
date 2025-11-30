@@ -1,0 +1,160 @@
+﻿cargo :    Compiling inventario_api v0.1.0 
+(C:\xampp\htdocs\distributed-system\inventario_api)
+At line:1 char:1
++ cargo build 2>&1 | Out-File -FilePath 
+build_output.txt -Encoding utf8
++ ~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Com 
+   piling in...inventario_api):String) [], RemoteE  
+  xception
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+error: error communicating with database: No 
+connection could be made because the target machine 
+actively refused it. (os error 10061)
+  --> src\controllers\inventory_controller.rs:35:18
+   |
+35 |       let result = query!(
+   |  __________________^
+36 | |         r#"
+37 | |         INSERT INTO inventory (name, sku, 
+stock, maximun, minimun, status) 
+38 | |         VALUES ($1, $2, $3, $4, $5, $6) 
+...  |
+46 | |         status_product
+47 | |     ).fetch_one(&pool).await;
+   | |_____^
+   |
+   = note: this error originates in the macro 
+`$crate::sqlx_macros::expand_query` which comes 
+from the expansion of the macro `query` (in Nightly 
+builds, run with -Z macro-backtrace for more info)
+
+error: error communicating with database: No 
+connection could be made because the target machine 
+actively refused it. (os error 10061)
+  --> src\controllers\inventory_controller.rs:82:18
+   |
+82 |       let result = query_as!(Products,
+   |  __________________^
+83 | |         r#"
+84 | |         SELECT * FROM inventory WHERE id = $1
+85 | |         "#,
+86 | |         *id
+87 | |     ).fetch_one(&pool).await;
+   | |_____^
+   |
+   = note: this error originates in the macro 
+`$crate::sqlx_macros::expand_query` which comes 
+from the expansion of the macro `query_as` (in 
+Nightly builds, run with -Z macro-backtrace for 
+more info)
+
+error: error communicating with database: No 
+connection could be made because the target machine 
+actively refused it. (os error 10061)
+   --> 
+src\controllers\inventory_controller.rs:115:18
+    |
+115 |       let result = query_as!(Products,
+    |  __________________^
+116 | |         r#"
+117 | |         SELECT * FROM inventory WHERE 
+status != false
+118 | |         "#,
+119 | |     ).fetch_all(&pool).await;
+    | |_____^
+    |
+    = note: this error originates in the macro 
+`$crate::sqlx_macros::expand_query` which comes 
+from the expansion of the macro `query_as` (in 
+Nightly builds, run with -Z macro-backtrace for 
+more info)
+
+error: error communicating with database: No 
+connection could be made because the target machine 
+actively refused it. (os error 10061)
+  --> 
+src\controllers\update_inventory_controller.rs:33:18
+   |
+33 |       let result = query!(
+   |  __________________^
+34 | |         r#"
+35 | |         UPDATE inventory SET name = $1,
+36 | |         stock = $2,
+...  |
+43 | |         data.name,values[0],values[1],values[
+2],status_product,id 
+44 | |     ).fetch_one(&pool).await;
+   | |_____^
+   |
+   = note: this error originates in the macro 
+`$crate::sqlx_macros::expand_query` which comes 
+from the expansion of the macro `query` (in Nightly 
+builds, run with -Z macro-backtrace for more info)
+
+error: error communicating with database: No 
+connection could be made because the target machine 
+actively refused it. (os error 10061)
+  --> 
+src\controllers\update_inventory_controller.rs:85:18
+   |
+85 |       let result = query_as!(Products,
+   |  __________________^
+86 | |         r#"
+87 | |         SELECT * FROM inventory WHERE id = $1
+88 | |         "#,
+89 | |         id
+90 | |     ).fetch_one(&pool).await;
+   | |_____^
+   |
+   = note: this error originates in the macro 
+`$crate::sqlx_macros::expand_query` which comes 
+from the expansion of the macro `query_as` (in 
+Nightly builds, run with -Z macro-backtrace for 
+more info)
+
+error: error communicating with database: No 
+connection could be made because the target machine 
+actively refused it. (os error 10061)
+   --> src\controllers\update_inventory_controller.r
+s:137:18
+    |
+137 |       let update = query!(
+    |  __________________^
+138 | |         r#"
+139 | |         UPDATE inventory SET
+140 | |         stock = $1,
+...   |
+144 | |         _new_stock,id 
+145 | |     ).fetch_one(&pool).await;
+    | |_____^
+    |
+    = note: this error originates in the macro 
+`$crate::sqlx_macros::expand_query` which comes 
+from the expansion of the macro `query` (in Nightly 
+builds, run with -Z macro-backtrace for more info)
+
+warning: unused import: `Products`
+ --> src\controllers\inventory_controller.rs:5:66
+  |
+5 | use crate::{database::get_pool, 
+models::data::{InventoryPayload, Products}};
+  |                                                 
+                 ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `Products`
+ --> 
+src\controllers\update_inventory_controller.rs:4:66
+  |
+4 | use crate::{database::get_pool, 
+models::data::{InventoryPayload, Products, 
+StockUpdate}};
+  |                                                 
+                 ^^^^^^^^
+
+warning: `inventario_api` (lib) generated 2 warnings
+error: could not compile `inventario_api` (lib) due 
+to 6 previous errors; 2 warnings emitted

@@ -30,7 +30,6 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
             'sku' => 'required|string|unique:products,sku',
             'active' => 'boolean'
         ]);
@@ -47,13 +46,14 @@ class ProductController extends Controller
         \Log::info('Product created by admin', [
             'product_id' => $product->id,
             'product_name' => $product->name,
+            'sku' => $product->sku,
             'admin_id' => $request->attributes->get('user_id'),
             'admin_email' => $request->attributes->get('user_email')
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Product created successfully',
+            'message' => 'Product created successfully. Register inventory in Inventario Service.',
             'data' => $product
         ], 201);
     }
@@ -71,7 +71,8 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $product
+            'data' => $product,
+            'note' => 'For stock information, query Inventario Service with SKU: ' . $product->sku
         ], 200);
     }
 
@@ -90,7 +91,6 @@ class ProductController extends Controller
             'name' => 'string|max:255',
             'description' => 'nullable|string',
             'price' => 'numeric|min:0',
-            'stock' => 'integer|min:0',
             'sku' => 'string|unique:products,sku,' . $id,
             'active' => 'boolean'
         ]);
@@ -127,10 +127,10 @@ class ProductController extends Controller
                 'message' => 'Product not found'
             ], 404);
         }
-
         \Log::info('Product deleted by admin', [
             'product_id' => $product->id,
             'product_name' => $product->name,
+            'sku' => $product->sku,
             'admin_id' => $request->attributes->get('user_id'),
             'admin_email' => $request->attributes->get('user_email')
         ]);
@@ -139,7 +139,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Product deleted successfully'
+            'message' => 'Product deleted successfully. Consider updating Inventario Service.'
         ], 200);
     }
 }
