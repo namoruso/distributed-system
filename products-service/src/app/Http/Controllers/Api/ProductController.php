@@ -12,7 +12,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $products = Product::all();
-        
+
         return response()->json([
             'success' => true,
             'data' => $products,
@@ -31,7 +31,8 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'sku' => 'required|string|unique:products,sku',
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120'
         ]);
 
         if ($validator->fails()) {
@@ -41,7 +42,16 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product = Product::create($request->all());
+        $data = $request->except('image');
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $data['image_url'] = '/storage/' . $imagePath;
+        }
+
+        $product = Product::create($data);
 
         \Log::info('Product created by admin', [
             'product_id' => $product->id,
@@ -92,7 +102,8 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'numeric|min:0',
             'sku' => 'string|unique:products,sku,' . $id,
-            'active' => 'boolean'
+            'active' => 'boolean',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120'
         ]);
 
         if ($validator->fails()) {
@@ -102,7 +113,23 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product->update($request->all());
+        $data = $request->except('image');
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image_url) {
+                $oldImagePath = str_replace('/storage/', '', $product->image_url);
+                \Storage::disk('public')->delete($oldImagePath);
+            }
+
+            // Store new image
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $data['image_url'] = '/storage/' . $imagePath;
+        }
+
+        $product->update($data);
 
         \Log::info('Product updated by admin', [
             'product_id' => $product->id,
@@ -127,6 +154,13 @@ class ProductController extends Controller
                 'message' => 'Product not found'
             ], 404);
         }
+
+        // Delete image if exists
+        if ($product->image_url) {
+            $imagePath = str_replace('/storage/', '', $product->image_url);
+            \Storage::disk('public')->delete($imagePath);
+        }
+
         \Log::info('Product deleted by admin', [
             'product_id' => $product->id,
             'product_name' => $product->name,

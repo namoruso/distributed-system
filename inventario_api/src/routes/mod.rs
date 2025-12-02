@@ -1,11 +1,12 @@
 use axum::{
     Router, middleware,
-    routing::{get, post, put},
+    routing::{get, post, put, delete},
 };
 
 use crate::controllers::{
     inventory_controller::get_product_by_sku,
     update_inventory_controller::{change_by_id, update_product_by_id},
+    delete_inventory_controller::delete_product,
 };
 use crate::middleware::{cors_config, user_validate};
 use crate::{
@@ -31,6 +32,7 @@ pub fn api_router() -> Router {
     let admin_routes = Router::new()
         .route("/add", post(add_new_product))
         .route("/update/:id", put(update_product_by_id))
+        .route("/delete/:id", delete(delete_product))
         .layer(middleware::from_fn(worker_validate))
         .layer(middleware::from_fn(headers_content_validation));
 

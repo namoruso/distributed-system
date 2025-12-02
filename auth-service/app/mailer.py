@@ -9,11 +9,18 @@ def enviar(correo, asunto, cuerpo):
     msg["Subject"] = asunto
     msg.set_content(cuerpo)
     try:
-        srv = smtplib.SMTP(smtpHost, smtpPort, timeout=5)
-        if smtpUser:
+        print(f"[MAILER] Enviando email a {correo} via {smtpHost}:{smtpPort}")
+        srv = smtplib.SMTP(smtpHost, smtpPort, timeout=10)
+        if smtpUser and smtpPass:
             srv.starttls()
             srv.login(smtpUser, smtpPass)
         srv.send_message(msg)
         srv.quit()
+        print(f"[MAILER] Email enviado exitosamente a {correo}")
+        return True
     except Exception as e:
-        print("mailErr", e)
+        print(f"[MAILER ERROR] No se pudo enviar email a {correo}: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
