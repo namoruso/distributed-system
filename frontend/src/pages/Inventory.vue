@@ -1,5 +1,5 @@
 <template>
-  <AppNavbar />
+  <Navbar />
   <div class="inventory-container">
     <h1 class="title">Inventario</h1>
 
@@ -120,7 +120,7 @@ import {
   updateInventoryItem,
   updateStock
 } from '../api/axiosInventory.js'
-import AppNavbar from '../components/AppNavbar.vue'
+import Navbar from '../components/Navbar.vue'
 
 
 const inventory = ref([])

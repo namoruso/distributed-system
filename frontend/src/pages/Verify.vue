@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
-import api from '../api/axiosAuth'
+import api from '../api/auth-api'
 import '../styles/auth.css'
 import { useRouter } from 'vue-router'
 import { useVerifyStore } from '../store/verify'
-import AuthFooter from '../components/AuthFooter.vue'
+import AuthFooter from '../components/Footer.vue'
 import logo from '../assets/logo.svg'
 
 const router = useRouter()

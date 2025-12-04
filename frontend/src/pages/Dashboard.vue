@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../store/auth'
+import { useAuthStore } from '../store/auth-store'
 import api from '../api/axiosAuth'
 import '../styles/dashboard.css'
 import logo from '../assets/logo.svg'
@@ -46,15 +46,12 @@ function getUserInitials() {
 
 <template>
   <div class="dashboard-layout">
-    <!-- Navbar Integrado -->
     <nav class="dashboard-navbar">
       <div class="navbar-content">
         <div class="navbar-left">
           <img :src="logo" alt="Logo" class="app-logo" />
         </div>
 
-
-        <!-- Menú de Navegación -->
         <ul class="nav-menu">
           <li>
             <router-link to="/dashboard" class="nav-link active">
@@ -76,7 +73,6 @@ function getUserInitials() {
           </li>
         </ul>
 
-        <!-- User Section -->
         <div class="navbar-user">
           <div class="user-info">
             <div class="user-avatar">
@@ -97,10 +93,8 @@ function getUserInitials() {
       </div>
     </nav>
 
-    <!-- Contenido Principal -->
     <main class="dashboard-main">
       <div class="dashboard-container">
-        <!-- Header Principal -->
         <div class="dashboard-header">
           <div class="welcome-section">
             <h1>¡Bienvenido, {{ user?.nombre }}! 👋</h1>
@@ -111,15 +105,12 @@ function getUserInitials() {
           </div>
         </div>
         <img :src="banner" alt="Dashboard Banner" class="dashboard-banner" />
-        <!-- Loading State -->
         <div v-if="loading" class="loading-state">
           <div class="spinner"></div>
           <p>Cargando información...</p>
         </div>
 
-        <!-- Contenido Principal -->
         <div v-else class="dashboard-content">
-          <!-- Tarjetas de Estado -->
           <div class="status-cards">
             <div class="status-card primary">
               <div class="card-icon">📦</div>
@@ -149,7 +140,6 @@ function getUserInitials() {
             </div>
           </div>
 
-          <!-- Sección de Acciones Rápidas -->
           <div class="quick-actions-section">
             <h2>Acciones Rápidas</h2>
             <div class="actions-grid">

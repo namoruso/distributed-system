@@ -1,47 +1,109 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../store/auth'
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '../store/auth-store';
 
-const Login = () => import('../pages/Login.vue')
-const Register = () => import('../pages/Register.vue')
-const Dashboard = () => import('../pages/Dashboard.vue')
-const Products = () => import('../pages/Products.vue')
-const Inventory = () => import('../pages/Inventory.vue')
-const Verify = () => import('../pages/Verify.vue')
+import HomePage from '../pages/HomePage.vue';
+import LoginPage from '../pages/LoginPage.vue';
+import RegisterPage from '../pages/RegisterPage.vue';
+import CatalogPage from '../pages/CatalogPage.vue';
+import CartPage from '../pages/CartPage.vue';
+import OrdersPage from '../pages/OrdersPage.vue';
+
+import AdminDashboard from '../pages/admin/AdminDashboard.vue';
+import AdminProducts from '../pages/admin/AdminProducts.vue';
+import AdminInventory from '../pages/admin/AdminInventory.vue';
 
 const routes = [
-  { path: '/', redirect: '/dashboard' },
-
-  { path: '/login', component: Login },
-  { path: '/register', component: Register },
-  { path: '/verify', component: Verify },
-
-  { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true }},
-  { path: '/products', component: Products, meta: { requiresAuth: true }},
-  { path: '/inventory', component: Inventory, meta: { requiresAuth: true }}
-]
+  {
+    path: '/',
+    name: 'Home',
+    component: HomePage
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginPage,
+    meta: { guest: true }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: RegisterPage,
+    meta: { guest: true }
+  },
+  {
+    path: '/catalog',
+    name: 'Catalog',
+    component: CatalogPage
+  },
+  {
+    path: '/cart',
+    name: 'Cart',
+    component: CartPage,
+    meta: { requiresAuth: true, customerOnly: true }
+  },
+  {
+    path: '/orders',
+    name: 'Orders',
+    component: OrdersPage,
+    meta: { requiresAuth: true, customerOnly: true }
+  },
+  {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, adminOnly: true }
+  },
+  {
+    path: '/admin/products',
+    name: 'AdminProducts',
+    component: AdminProducts,
+    meta: { requiresAuth: true, adminOnly: true }
+  },
+  {
+    path: '/admin/inventory',
+    name: 'AdminInventory',
+    component: AdminInventory,
+    meta: { requiresAuth: true, adminOnly: true }
+  }
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
+});
 
 router.beforeEach((to, from, next) => {
-  const auth = useAuthStore()
+  const authStore = useAuthStore();
 
-  const isLogged = !!auth.token
-  const needsAuth = to.meta.requiresAuth
-
-  //  si no esta y la ruta es privada  manda a login directamente 
-  if (needsAuth && !isLogged) {
-    return next('/login')
+  if (!authStore.isAuthenticated && localStorage.getItem('jwt_token')) {
+    authStore.initAuth();
   }
 
-  // si ya se inidio sesion te lleva directo al dashboard
-  if (isLogged && ['/login', '/register', '/verify'].includes(to.path)) {
-    return next('/dashboard')
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const guestOnly = to.matched.some(record => record.meta.guest);
+  const adminOnly = to.matched.some(record => record.meta.adminOnly);
+  const customerOnly = to.matched.some(record => record.meta.customerOnly);
+
+  if (guestOnly && authStore.isAuthenticated) {
+    if (authStore.isAdmin) {
+      return next('/admin');
+    }
+    return next('/');
   }
 
-  next()
-})
+  if (requiresAuth && !authStore.isAuthenticated) {
+    return next('/login');
+  }
 
-export default router
+  if (adminOnly && !authStore.isAdmin) {
+    return next('/');
+  }
+
+  if (customerOnly && authStore.isAdmin) {
+    return next('/admin');
+  }
+
+  next();
+});
+
+export default router;

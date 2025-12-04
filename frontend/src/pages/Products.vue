@@ -1,5 +1,5 @@
 <template>
-  <AppNavbar />
+  <Navbar />
   <div class="products-page container">
     <header class="products-header">
       <h1>Productos</h1>
@@ -120,14 +120,14 @@
 
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../store/auth'
+import { useAuthStore } from '../store/auth-store'
 import {
   listProducts,
   createProduct,
   updateProduct,
   deleteProduct
 } from '../api/axiosProducts'
-import AppNavbar from '../components/AppNavbar.vue'
+import Navbar from '../components/Navbar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()

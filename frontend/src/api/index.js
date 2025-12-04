@@ -1,8 +1,8 @@
 
 
-import apiAuth from './axiosAuth'
-import apiProducts from './axiosProducts'
-import apiInventory from './axiosInventory'
+import apiAuth from './auth-api'
+import apiProducts from './products-api'
+import apiInventory from './inventory-api'
 
 // exportar APIs de microservicios
 export {
