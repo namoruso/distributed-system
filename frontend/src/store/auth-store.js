@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = token;
         this.user = JSON.parse(user);
         this.isAuthenticated = true;
-        this.isAdmin = this.user.role === 'admin' || this.user.correo?.includes('admin');
+        this.isAdmin = this.user.rol === 'admin' || this.user.correo?.includes('admin');
       }
     },
 
