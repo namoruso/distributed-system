@@ -9,6 +9,10 @@ services:
     container_name: products_php
     restart: unless-stopped
     working_dir: /var/www
+    environment:
+      - JWT_SECRET=MiSuperSecretKeyParaDistributed2025System!
+      - JWT_TTL=60
+      - JWT_ALGO=HS256
     volumes:
       - ./src:/var/www
     networks:
