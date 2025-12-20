@@ -40,14 +40,14 @@ impl InventoryPayload {
         if min > max || stock > max || stock < min {
             return Err(Error::new(
                 ErrorKind::InvalidData,
-                "El mínimo no puede ser mayor al stock o el stock y minimo no pueden ser mayor que el máximo",
+                "The minimum cannot be greater than the stock or the stock and minimum cannot be greater than the maximum",
             ));
         }
 
         if max <= 0 {
             return Err(Error::new(
                 ErrorKind::InvalidData,
-                "No pueden tener valores negativos o un máximo igual a 0",
+                "maximum less than 0",
             ));
         }
 

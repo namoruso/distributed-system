@@ -1,34 +1,15 @@
-use crate::{
-    database::get_pool,
-    models::data::{InventoryPayload, Products, StockUpdate},
-};
-use axum::{
-    Json,
-    extract::{Path, rejection::JsonRejection},
-    http::StatusCode,
-    response::IntoResponse,
-};
+use crate::{models::data::{InventoryPayload, Products, StockUpdate}};
+
+use axum::{Extension, Json, extract::{Path, rejection::JsonRejection}, http::StatusCode, response::IntoResponse};
+
 use serde_json::json;
-use sqlx::{query, query_as};
+use sqlx::{PgPool, query, query_as};
 
 pub async fn update_product_by_id(
     Path(id): Path<i32>,
+    Extension(pool): Extension<PgPool>,
     payload: Result<Json<InventoryPayload>, JsonRejection>,
 ) -> impl IntoResponse {
-    let pool = match get_pool().await {
-        Ok(connect) => connect,
-        Err(error) => {
-            eprintln!(
-                "{}: Error en la BD: {}",
-                StatusCode::INTERNAL_SERVER_ERROR,
-                error
-            );
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({"message": "Error al guardar los datos"})),
-            );
-        }
-    };
 
     let data = match payload {
         Ok(value) => value,
@@ -36,7 +17,7 @@ pub async fn update_product_by_id(
             eprintln!("{}: Error en el json", StatusCode::BAD_REQUEST);
             return (
                 StatusCode::BAD_REQUEST,
-                Json(json!({"message": "Datos faltantes o tipos erroneos".to_string()})),
+                Json(json!({"message": "Missing data or wrong types".to_string()})),
             );
         }
     };
@@ -84,17 +65,17 @@ pub async fn update_product_by_id(
                 "minimun": record.minimun,
                 "status": record.status,
                 "updated_at": record.updated_at,
-                "message": "Se ha actualizado el producto exitosamente".to_string()
+                "message": "The product has been updated successfully".to_string()
             });
 
             println!("{}: Producto actualizado: {}", StatusCode::OK, record.id);
             return (StatusCode::OK, Json(res));
         }
         Err(error) => {
-            eprintln!("{}: Error en la BD: {}", StatusCode::NOT_FOUND, error);
+            eprintln!("{}: Error en la BD (Actualizando-producto no encontrado): {}", StatusCode::NOT_FOUND, error);
             return (
                 StatusCode::NOT_FOUND,
-                Json(json!({"message": "Error al actualizar los datos o producto inexistente"})),
+                Json(json!({"message": "Error updating data or non-existent product"})),
             );
         }
     }
@@ -102,8 +83,10 @@ pub async fn update_product_by_id(
 
 pub async fn change_by_id(
     Path((id, mode)): Path<(i32, String)>,
-    payload: Result<Json<StockUpdate>, JsonRejection>,
+    Extension(pool): Extension<PgPool>,
+    payload: Result<Json<StockUpdate>, JsonRejection>
 ) -> impl IntoResponse {
+
     if mode != "increase" && mode != "decrease" {
         eprintln!(
             "{}: Error en el modo del cambio de stock",
@@ -111,24 +94,9 @@ pub async fn change_by_id(
         );
         return (
             StatusCode::NOT_FOUND,
-            Json(json!({"message": "Error al obtener el modo"})),
+            Json(json!({"message": "Error getting mode"})),
         );
     }
-
-    let pool = match get_pool().await {
-        Ok(connect) => connect,
-        Err(error) => {
-            eprintln!(
-                "{}: Error en la BD: {}",
-                StatusCode::INTERNAL_SERVER_ERROR,
-                error
-            );
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({"message": "Error al guardar los datos"})),
-            );
-        }
-    };
 
     let result = query_as!(
         Products,
@@ -145,16 +113,16 @@ pub async fn change_by_id(
             if !record.status {
                 return (
                     StatusCode::NOT_FOUND,
-                    Json(json!({"message": "Producto inexistente"})),
+                    Json(json!({"message": "Non-existent product"})),
                 );
             }
             record
         }
         Err(error) => {
-            eprintln!("{}: Error en la BD: {}", StatusCode::NOT_FOUND, error);
+            eprintln!("{}: Error en la BD (Obteniendo datos-No encontrado): {}", StatusCode::NOT_FOUND, error);
             return (
                 StatusCode::NOT_FOUND,
-                Json(json!({"message": "Error al obtener los datos o producto inexistente"})),
+                Json(json!({"message": "Error obtaining data or non-existent product"})),
             );
         }
     };
@@ -162,10 +130,10 @@ pub async fn change_by_id(
     let update_stock_value = match payload {
         Ok(value) => value,
         Err(_) => {
-            eprintln!("{}: Error en el json", StatusCode::BAD_REQUEST);
+            eprintln!("{}: Error en el json recibido", StatusCode::BAD_REQUEST);
             return (
                 StatusCode::BAD_REQUEST,
-                Json(json!({"message": "Datos faltantes o tipos erroneos".to_string()})),
+                Json(json!({"message": "Missing data".to_string()})),
             );
         }
     };
@@ -179,17 +147,17 @@ pub async fn change_by_id(
                 eprintln!("{}: Error en los datos", StatusCode::BAD_REQUEST);
                 return (
                     StatusCode::BAD_REQUEST,
-                    Json(json!({"message": "El stock no puede superar el maximo"})),
+                    Json(json!({"message": "Stock cannot exceed the maximum"})),
                 );
             }
         }
         "decrease" => {
             _new_stock = data.stock - update_stock_value.update;
             if _new_stock < data.minimun {
-                eprintln!("{}: Error en los datos", StatusCode::BAD_REQUEST);
+                eprintln!("{}: Error en los datos enviados (Stock < minimo)", StatusCode::BAD_REQUEST);
                 return (
                     StatusCode::BAD_REQUEST,
-                    Json(json!({"message": "No hay stock disponible"})),
+                    Json(json!({"message": "No stock available"})),
                 );
             }
         }
@@ -200,7 +168,7 @@ pub async fn change_by_id(
             );
             return (
                 StatusCode::NOT_FOUND,
-                Json(json!({"message": "Error al obtener el modo"})),
+                Json(json!({"message": "No stock available"})),
             );
         }
     }
@@ -223,7 +191,7 @@ pub async fn change_by_id(
             let res = json!({
                 "id": record.id,
                 "name": record.name,
-                "message": "Se ha actualizado el stock exitosamente".to_string()
+                "message": "Stock has been updated successfully".to_string()
             });
 
             println!("{}: Stock actualizado: {}", StatusCode::OK, record.id);
@@ -232,12 +200,12 @@ pub async fn change_by_id(
         Err(error) => {
             eprintln!(
                 "{}: Error en la BD: {}",
-                StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::NOT_FOUND,
                 error
             );
             return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({"message": "Error al  actualizar los datos o producto inexistente"})),
+                StatusCode::NOT_FOUND,
+                Json(json!({"message": "Error updating data or non-existent product"})),
             );
         }
     }

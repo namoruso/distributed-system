@@ -1,17 +1,31 @@
-use axum::{
-    Router,
-};
-use inventario_api::{database::init_db, routes::api_router};
+use std::env;
+
+use axum::Router;
+use inventario_api::{models::inventory_table::inventory_table, routes::api_router};
+use sqlx::postgres::PgPoolOptions;
 
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
+    
     let port = std::env::var("PORT").expect("Error al obtener el port");
+    let db_url = env::var("DATABASE_URL").expect("Error al obtener el url");
 
-    let app = Router::new().nest("/api/inventory", api_router());
+    let pool = PgPoolOptions::new()
+    .max_connections(5)  
+    .connect(&db_url)
+    .await.expect("Error al conectar a la base de datos");
+
+    println!("Conexión exitosa a la base de datos");
+
+    if let Err(e) = inventory_table(&pool).await {
+        eprintln!("Error al crear la tabla de la base de datos: {}", e);
+        return;
+    }
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}",port)).await.unwrap();
+    let app = Router::new().nest("/api/inventory", api_router(pool));
     println!("Corriendo en: http://localhost:{}",port);
-    init_db().await;
     axum::serve(listener, app).await.unwrap();
+
 }

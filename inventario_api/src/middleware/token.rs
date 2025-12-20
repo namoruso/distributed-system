@@ -20,7 +20,7 @@ pub fn get_token_data(auth: Option<Authorization<Bearer>>) -> Result<Claims, Err
         None => {
             return Err(Error::new(
                 std::io::ErrorKind::PermissionDenied,
-                "Token faltante o formato incorrecto",
+                "Missing or incorrectly formatted token",
             ));
         }
     };
@@ -31,9 +31,9 @@ pub fn get_token_data(auth: Option<Authorization<Bearer>>) -> Result<Claims, Err
             let error_message;
 
             match *error.kind() {
-                ErrorKind::ExpiredSignature => error_message = "Token expirado",
-                ErrorKind::InvalidSignature => error_message = "Firma del token invalida",
-                _ => error_message = "Error en el token o campos faltantes",
+                ErrorKind::ExpiredSignature => error_message = "Expired token",
+                ErrorKind::InvalidSignature => error_message = "Invalid token signature",
+                _ => error_message = "Token error: missing fields",
             }
             return Err(Error::new(
                 std::io::ErrorKind::PermissionDenied,
