@@ -2,16 +2,11 @@ use axum::{ Extension, Router, middleware, routing::{delete, get, post, put}};
 use sqlx::{Pool, Postgres};
 
 use crate::controllers::{
-    inventory_controller::get_product_by_sku,
+    inventory_controller::{add_new_product, get_all_products, get_product_by_id,get_product_by_sku},
     update_inventory_controller::{change_by_id, update_product_by_id},
     delete_inventory_controller::delete_product,
 };
-use crate::middleware::{cors_config, user_validate};
-
-use crate::{
-    controllers::inventory_controller::{add_new_product, get_all_products, get_product_by_id},
-    middleware::worker_validate,
-};
+use crate::middleware::{cors_config, user_validate, worker_validate};
 
 pub fn api_router(pool: Pool<Postgres>) -> Router {
 

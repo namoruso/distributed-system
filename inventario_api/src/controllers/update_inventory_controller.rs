@@ -1,4 +1,4 @@
-use crate::{models::data::{InventoryPayload, Products, StockUpdate}};
+use crate::models::{InventoryPayload, Products, StockUpdate};
 
 use axum::{Extension, Json, extract::{Path, rejection::JsonRejection}, http::StatusCode, response::IntoResponse};
 

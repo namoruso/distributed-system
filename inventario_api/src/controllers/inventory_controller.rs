@@ -1,11 +1,10 @@
-
 use axum::{
     Extension, Json, extract::{Path,rejection::JsonRejection}, http::StatusCode, response::IntoResponse
 };
 use serde_json::json;
 use sqlx::{Error, PgPool, query, query_as};
 
-use crate::models::data::{InventoryPayload, Products};
+use crate::models::{InventoryPayload, Products};
 
 pub async fn add_new_product( 
     Extension(pool): Extension<PgPool>, payload: Result<Json<InventoryPayload>, JsonRejection> ) 
