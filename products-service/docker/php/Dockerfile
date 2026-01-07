@@ -7,12 +7,13 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    libicu-dev \
     zip \
     unzip
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd intl
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -20,4 +21,9 @@ WORKDIR /var/www
 
 COPY ../../src /var/www
 
+COPY docker/php/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 RUN chown -R www-data:www-data /var/www
+
+ENTRYPOINT ["docker-entrypoint.sh"]

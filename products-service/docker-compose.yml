@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Servicio PHP-FPM
   php:
@@ -18,7 +16,8 @@ services:
     networks:
       - products_network
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   # Servicio Nginx
   nginx:
@@ -50,6 +49,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - products_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U products_user -d products_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   products_network:

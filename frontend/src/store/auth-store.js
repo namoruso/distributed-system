@@ -79,7 +79,7 @@ export const useAuthStore = defineStore('auth', {
         const userInfo = await authAPI.getCurrentUser(this.token);
         this.user = userInfo;
 
-        this.isAdmin = email.includes('admin') || userInfo.role === 'admin';
+        this.isAdmin = email.includes('admin') || userInfo.rol === 'admin';
 
         localStorage.setItem('user', JSON.stringify(this.user));
         
