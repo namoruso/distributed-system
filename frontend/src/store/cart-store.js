@@ -124,33 +124,38 @@ export const useCartStore = defineStore('cart', {
       this.error = null;
       
       try {
-        const inventoryStore = useInventoryStore();
+        const { useOrdersStore } = await import('./orders-store');
+        const ordersStore = useOrdersStore();
 
-        const order = {
-          id: Date.now(),
-          items: [...this.items],
-          total: this.cartTotal,
-          status: 'completed',
-          date: new Date().toISOString(),
-          canReturn: true
+        // Preparar datos del pedido para el backend
+        const orderData = {
+          items: this.items.map(item => ({
+            productId: item.id,
+            quantity: item.quantity
+          })),
+          notes: ''
         };
 
-        for (const item of this.items) {
-          try {
-            await inventoryStore.decreaseStock(item.id, item.quantity);
-          } catch (error) {
-            console.error(`Failed to decrease stock for ${item.name}:`, error);
-          }
-        }
+        // Crear pedido en el backend
+        const order = await ordersStore.createOrder(orderData);
 
-        this.orders.unshift(order);
+        // Guardar en historial local también
+        this.orders.unshift({
+          id: order.id,
+          items: [...this.items],
+          total: order.totalAmount,
+          status: order.status,
+          date: order.createdAt,
+          backendOrder: true
+        });
         this.saveOrders();
 
+        // Limpiar carrito
         this.clearCart();
         this.loading = false;
         return order;
       } catch (error) {
-        this.error = error.message || 'Checkout failed';
+        this.error = error.response?.data?.message || error.message || 'Checkout failed';
         this.loading = false;
         throw error;
       }
