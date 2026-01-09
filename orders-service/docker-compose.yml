@@ -1,0 +1,50 @@
+services:
+  orders-db:
+    image: postgres:15-alpine
+    container_name: orders_postgres
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_pass
+    volumes:
+      - orders_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders_user -d orders_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orders-network
+
+  orders:
+    build: .
+    container_name: orders_service
+    ports:
+      - "8003:8003"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: orders-db
+      DB_PORT: 5432
+      DB_NAME: orders_db
+      DB_USER: orders_user
+      DB_PASSWORD: orders_pass
+      JWT_SECRET: MiSuperSecretKeyParaDistributed2025System!
+      PRODUCTS_SERVICE_URL: http://host.docker.internal:8001
+      CORS_ORIGINS: http://localhost:5173,http://localhost:5174
+      LOG_LEVEL: INFO
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      orders-db:
+        condition: service_healthy
+    networks:
+      - orders-network
+
+networks:
+  orders-network:
+    driver: bridge
+
+volumes:
+  orders_data:
