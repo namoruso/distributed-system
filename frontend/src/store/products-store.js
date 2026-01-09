@@ -15,7 +15,8 @@ export const useProductsStore = defineStore('products', {
       maxPrice: 10000,
       inStock: false
     },
-    sortBy: 'name' 
+    sortBy: 'name',
+    cartItems: []
   }),
 
   getters: {
@@ -62,7 +63,15 @@ export const useProductsStore = defineStore('products', {
 
     inStockCount: (state) => state.products.filter(p => p.stock > 0 && p.active).length,
 
-    outOfStockCount: (state) => state.products.filter(p => p.stock === 0 || !p.active).length
+    outOfStockCount: (state) => state.products.filter(p => p.stock === 0 || !p.active).length,
+
+    cartCount: (state) => state.cartItems.reduce((total, item) => total + item.quantity, 0),
+
+    cartTotal: (state) => state.cartItems.reduce((total, item) => {
+      return total + (item.product.price * item.quantity);
+    }, 0),
+
+    hasItemsInCart: (state) => state.cartItems.length > 0
   },
 
   actions: {
@@ -204,6 +213,55 @@ export const useProductsStore = defineStore('products', {
 
     clearError() {
       this.error = null;
+    },
+
+    addToCart(product, quantity = 1) {
+      const existingItem = this.cartItems.find(item => item.product.id === product.id);
+      
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        this.cartItems.push({
+          product,
+          quantity
+        });
+      }
+      
+      localStorage.setItem('cart', JSON.stringify(this.cartItems));
+    },
+
+    removeFromCart(productId) {
+      this.cartItems = this.cartItems.filter(item => item.product.id !== productId);
+      localStorage.setItem('cart', JSON.stringify(this.cartItems));
+    },
+
+    updateCartItemQuantity(productId, quantity) {
+      const item = this.cartItems.find(item => item.product.id === productId);
+      if (item) {
+        item.quantity = quantity;
+        if (quantity <= 0) {
+          this.removeFromCart(productId);
+        } else {
+          localStorage.setItem('cart', JSON.stringify(this.cartItems));
+        }
+      }
+    },
+
+    clearCart() {
+      this.cartItems = [];
+      localStorage.removeItem('cart');
+    },
+
+    loadCartFromStorage() {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          this.cartItems = JSON.parse(savedCart);
+        } catch (error) {
+          console.error('Error loading cart from storage:', error);
+          this.cartItems = [];
+        }
+      }
     }
   }
 });

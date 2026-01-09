@@ -23,8 +23,9 @@
         <button
           class="btn btn-primary btn-sm"
           :disabled="!product.active || product.stock === 0"
+          @click="addToCart"
         >
-          View Details
+          🛒 Add to Cart
         </button>
       </div>
     </div>
@@ -33,6 +34,9 @@
 
 <script setup>
 import { computed } from "vue";
+import { useCartStore } from "../store/cart-store";
+
+const cartStore = useCartStore();
 
 const props = defineProps({
   product: {
@@ -76,6 +80,11 @@ const formatPrice = (price) => {
 
 const handleImageError = (e) => {
   e.target.src = placeholderImage;
+};
+
+const addToCart = () => {
+  cartStore.addToCart(props.product, 1);
+  alert(`${props.product.name} added to cart!`);
 };
 </script>
 
