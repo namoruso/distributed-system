@@ -11,6 +11,9 @@ services:
       - JWT_SECRET=MiSuperSecretKeyParaDistributed2025System!
       - JWT_TTL=60
       - JWT_ALGO=HS256
+      - INVENTARIO_SERVICE_URL=http://host.docker.internal:5002
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./src:/var/www
     networks:

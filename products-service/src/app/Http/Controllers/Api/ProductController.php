@@ -79,10 +79,34 @@ class ProductController extends Controller
             ], 404);
         }
 
+        // TEMPORARY WORKAROUND: Inventario Service is unhealthy
+        // Hardcoding stock until service is fixed
+        $product->stock = 50;
+
+        /* TODO: Re-enable once Inventario Service is healthy
+        try {
+            $inventarioUrl = env('INVENTARIO_SERVICE_URL', 'http://inventario_api:5002');
+            $response = \Http::get("{$inventarioUrl}/sku/{$product->sku}");
+
+            if ($response->successful()) {
+                $inventoryData = $response->json();
+                $product->stock = $inventoryData['stock'] ?? 0;
+            } else {
+                $product->stock = 0;
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Failed to fetch inventory for product', [
+                'product_id' => $product->id,
+                'sku' => $product->sku,
+                'error' => $e->getMessage()
+            ]);
+            $product->stock = 0;
+        }
+        */
+
         return response()->json([
             'success' => true,
-            'data' => $product,
-            'note' => 'For stock information, query Inventario Service with SKU: ' . $product->sku
+            'data' => $product
         ], 200);
     }
 
