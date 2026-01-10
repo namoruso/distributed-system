@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  payments-db:
+    image: postgres:16-alpine
+    container_name: payments_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pagos_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - payments_data:/var/lib/postgresql/data
+    networks:
+      - payments_network
+
+  payments-service:
+    build: .
+    container_name: payments_service
+    environment:
+      PORT: 8002
+      DB_HOST: payments-db
+      DB_PORT: 5432
+      DB_NAME: pagos_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      NODE_ENV: development
+      JWT_SECRET: secreto_jwt_super_seguro_payments
+      ORDERS_SERVICE_URL: http://host.docker.internal:8003/api
+    ports:
+      - "8002:8002"
+    depends_on:
+      - payments-db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - payments_network
+    restart: unless-stopped
+
+networks:
+  payments_network:
+    driver: bridge
+
+volumes:
+  payments_data:
