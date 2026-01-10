@@ -24,6 +24,12 @@ export const inventoryAPI = axios.create({
   }
 });
 
+export const paymentsAPI = axios.create({
+  baseURL: import.meta.env.VITE_PAYMENTS_SERVICE_URL || 'http://localhost:3002/api',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 const addAuthToken = (config) => {
   const token = localStorage.getItem('jwt_token');
   if (token) {
@@ -86,8 +92,19 @@ const handleResponseError = (error) => {
   );
 });
 
+paymentsAPI.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('jwt_token');  
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 export default {
   authAPI,
   productsAPI,
-  inventoryAPI
+  inventoryAPI,
+  paymentsAPI
 };

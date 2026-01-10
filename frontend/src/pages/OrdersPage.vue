@@ -10,12 +10,19 @@
               <h3>Order #{{ order.id }}</h3>
               <p class="order-date">{{ formatDate(order.date) }}</p>
             </div>
+
             <div class="order-status">
-              <span class="badge" :class="getStatusClass(order.status)">
-                {{ order.status }}
-              </span>
-            </div>
+            <span class="badge" :class="getStatusClass(order.status)">
+              {{ order.status }}
+            </span>
+            <span v-if="order.paymentStatus" class="payment-status">
+              ({{ order.paymentStatus }})
+            </span>
           </div>
+            
+          </div>
+
+          
 
           <div class="order-items">
             <div v-for="item in order.items" :key="item.id" class="order-item">
@@ -39,6 +46,15 @@
             >
               Request Return
             </button>
+            <button
+              v-if="order.status === 'CREADO'"
+              @click="goToPayment(order.id)"
+              class="btn btn-sm btn-primary"
+              :disabled="cartStore.loading"
+            >
+              Pay Now
+            </button>
+
           </div>
         </div>
       </div>
@@ -65,6 +81,7 @@ import { ref, onMounted } from 'vue';
 import { useCartStore } from '../store/cart-store';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 
+const router = useRouter();
 const cartStore = useCartStore();
 const showReturnConfirm = ref(false);
 const orderToReturn = ref(null);
@@ -87,6 +104,9 @@ const getStatusClass = (status) => {
     default:
       return 'badge-warning';
   }
+};
+const goToPayment = (orderId) => {
+  router.push(`/payment/${orderId}`);
 };
 
 const handleReturn = (orderId) => {

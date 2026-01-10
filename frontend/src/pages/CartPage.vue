@@ -64,9 +64,12 @@ const toast = useToast();
 
 const handleCheckout = async () => {
   try {
-    await cartStore.checkout();
-    toast.success('Order placed successfully! Check your orders page for details.');
-    router.push('/orders');
+    const order = await cartStore.checkout();
+    console.log('Order created:', order); 
+    console.log('Order ID:', order.id); 
+    toast.success('Order created successfully! Please complete payment.');
+    router.push(`/payment/${order.id}`);
+    
   } catch (error) {
     console.error('Checkout failed:', error);
     toast.error(error.message || 'Checkout failed. Please try again.');
