@@ -45,6 +45,11 @@
             <h3>Manage Inventory</h3>
             <p>Update stock levels and alerts</p>
           </router-link>
+
+          <router-link to="/admin/payments" class="action-card card hover-lift">
+            <h3>Manage Payments</h3>
+            <p>View and manage payment transactions</p>
+        </router-link>
         </div>
       </div>
     </div>

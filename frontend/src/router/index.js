@@ -64,6 +64,18 @@ const routes = [
     name: 'AdminInventory',
     component: AdminInventory,
     meta: { requiresAuth: true, adminOnly: true }
+  },
+  {
+    path: '/admin/payments',
+    name: 'AdminPayments',
+    component: () => import('../pages/admin/AdminPayments.vue'),
+    meta: { requiresAuth: true, adminOnly: true }
+  },
+  {
+    path: '/payment/:orderId',
+    name: 'Payment',
+    component: () => import('../pages/PaymentPage.vue'),
+    meta: { requiresAuth: true }
   }
 ];
 
