@@ -12,12 +12,11 @@ Servicio de pagos con Node.js + Express. Simula procesamiento de pagos, mantiene
 - Estructura del proyecto
 - Instalación (local / Docker)
 - Configuración
-- Endpoints (API)
+- Endpoints 
 - Flujo de pagos
-- Cómo probar (curl / PowerShell / Postman)
-- Diagramas (Mermaid)
-- Troubleshooting
-- Notas finales
+- Cómo probar 
+- Diagramas 
+- Errores Comunes
 
 ---
 
