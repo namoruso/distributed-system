@@ -23,29 +23,28 @@ Servicio de pagos con Node.js + Express. Simula procesamiento de pagos, mantiene
 
 ## Descripción
 
-Este microservicio gestiona los pagos del sistema: simula el procesamiento de pagos, registra transacciones en BD, mantiene historial por usuario, valida JWT en todos los endpoints protegidos y notifica automáticamente a orders-service cuando un pago se completa para actualizar el estado del pedido.
+Este microservicio gestiona los pagos del sistema, simula el procesamiento de pagos, registra transacciones en BD, mantiene historial por usuario, valida JWT en todos los endpoints protegidos y notifica automáticamente a orders-service cuando un pago se completa para actualizar el estado del pedido.
 
 ---
 
 ## Funcionalidades
 
-- **Pasarela de pago simulada tipo Stripe** (validaciones realistas)
-  - Validación de número de tarjeta (algoritmo de Luhn)
+- **Simulacion de pasarela de pago** 
+  - Validación de número de tarjeta con algoritmo de Luhn
   - Validación de CVV y fecha de vencimiento
   - Detección de marca de tarjeta (Visa, Mastercard, Amex, Discover)
-- **Simulación realista de procesamiento** (80% éxito, 20% rechazo)
+- **Simulación de procesamiento** 
 - Registro de pagos con estados: `pendiente`, `completado`, `fallido`
-- Historial de pagos por usuario (con paginación)
-- Generación de referencias únicas de transacción (formato Stripe: `pay_XXXXX`)
+- Historial de pagos por usuario con paginación
+- Generación de referencias únicas de transacción 
 - Validación JWT en endpoints protegidos
 - Servicio separado para comunicación con orders-service
 - Integración automática con orders-service
 - Actualización de estado de pedido al completar pago
-- Estadísticas de pagos para administrador (tasas, promedios)
+- Estadísticas de pagos para administrador 
 - Cambio manual de estado de pago (admin)
 - Docker + PostgreSQL para pruebas locales
-- Paginación en endpoints GET (limit, page, metadatos)
-- **Respuestas tipo Stripe** (object, charges, payment_method, etc)
+- Paginación en endpoints GET 
 
 ---
 
@@ -76,52 +75,32 @@ Este microservicio gestiona los pagos del sistema: simula el procesamiento de pa
 ```
 payments-service/
 ├─ src/
-│  ├─ index.js                    # Servidor principal
+│  ├─ index.js                    
 │  ├─ config/
-│  │  └─ bd.js                    # Conexión Sequelize + PostgreSQL
+│  │  └─ bd.js                   
 │  ├─ controllers/
-│  │  └─ pagoCtrl.js              # Lógica de endpoints (6 funciones)
+│  │  └─ pagoCtrl.js              
 │  ├─ middleware/
-│  │  └─ auth.js                  # Validación JWT
+│  │  └─ auth.js                  
 │  ├─ models/
-│  │  └─ index.js                 # Modelo Pago (schema)
-│  ├─ routes/
-│  │  └─ pagoRutas.js             # Definición de rutas
-│  ├─ services/
-│  │  └─ ordenSvc.js              # Comunicación con orders-service
-│  └─ utils/
-│     └─ helpers.js               # Funciones auxiliares
-├─ .env                           # Variables de entorno (local)
-├─ .env.example                   # Template de .env
-├─ .gitignore
-├─ docker-compose.yml             # Compose con PostgreSQL
-├─ Dockerfile
-├─ package.json
-└─ README.md                       # Esta documentación
-```
-│  ├─ controllers/
-│  │  └─ pagoCtrl.js
-│  ├─ middleware/
-│  │  └─ auth.js
-│  ├─ models/
-│  │  ├─ pago.js
 │  │  └─ index.js
+|  |  └─ pago.js                
 │  ├─ routes/
-│  │  └─ pagoRutas.js
+│  │  └─ pagoRutas.js             
+│  ├─ services/
+│  │  └─ ordenSvc.js             
 │  └─ utils/
-│     └─ helpers.js
-├─ .env
-├─ .env.example
+│     └─ helpers.js               
+├─ .env                           
+├─ .env.example                   
 ├─ .gitignore
-├─ package.json
+├─ docker-compose.yml             
 ├─ Dockerfile
-├─ docker-compose.yml
-└─ README.md
-```
+├─ package.json
+└─ README.md                       
 
----
 
-## Instalación — Local (Windows) paso a paso
+## Instalación Local (Windows) 
 
 1. Clonar repo:
 ```bash
@@ -134,12 +113,12 @@ cd payments-service
 npm install
 ```
 
-3. Crear archivo .env (copiar desde .env.example):
+3. Crear archivo .env (copiar .env.example):
 ```powershell
 cp .env.example .env
 ```
 
-4. Asegurar que PostgreSQL corre en puerto 5432 (o ajustar DB_HOST en .env)
+4. Asegurar que PostgreSQL corre en puerto 5432 
 
 5. Ejecutar local:
 ```bash
@@ -153,14 +132,14 @@ npm run dev
 
 ---
 
-## Instalación con Docker (recomendado)
+## Instalación con Docker 
 
-1. Crear red compartida (una sola vez):
+1. Crear red compartida:
 ```bash
 docker network create sistema-distribuido
 ```
 
-2. Levantar servicios (incluye PostgreSQL):
+2. Levantar servicios:
 ```bash
 docker compose up -d --build
 ```
@@ -178,7 +157,7 @@ docker compose logs payments-service --tail 200
 
 ---
 
-## Configuración (variables)
+## Configuración
 
 Valores comunes en `.env`:
 - PORT: `8002`
@@ -199,7 +178,7 @@ En Docker se pasan por `docker-compose.yml`. En local, se definen en `.env`.
 
 Base: `http://localhost:8002/api/pagos`
 
-### Headers requeridos (todos protegidos)
+### Headers requeridos 
 ```
 Authorization: Bearer {token_jwt}
 Content-Type: application/json
@@ -211,9 +190,8 @@ Content-Type: application/json
 
 **POST** `/procesar`
 
-Simula procesamiento de pago tipo Stripe. Valida número de tarjeta, CVV, vencimiento. Automáticamente notifica a orders-service si el pago es exitoso.
+Simula procesamiento de pago. Valida número de tarjeta, CVV, vencimiento. Automáticamente notifica a orders-service si el pago es exitoso.
 
-Body JSON (datos realistas):
 ```json
 {
   "idPedido": 1,
@@ -288,10 +266,6 @@ Respuesta (402 - Pago rechazado):
 **GET** `/mis-pagos?page=1&limit=10`
 
 Lista todos los pagos del usuario autenticado con paginación (ordenados por fecha descendente).
-
-Query parameters (opcionales):
-- `page`: Número de página (por defecto 1)
-- `limit`: Resultados por página (máx 100, por defecto 10)
 
 Respuesta (200):
 ```json
@@ -374,10 +348,6 @@ Respuesta (200):
 
 Obtiene todos los pagos de un pedido específico (sin protección JWT).
 
-Query parameters (opcionales):
-- `page`: Número de página (por defecto 1)
-- `limit`: Resultados por página (máx 100, por defecto 10)
-
 Respuesta (200):
 ```json
 {
@@ -399,7 +369,7 @@ Respuesta (200):
 
 **PUT** `/{id}`
 
-Cambia el estado de un pago (pendiente → completado → fallido). Si cambia a completado, notifica automáticamente a orders-service.
+Cambia el estado de un pago pendiente → completado → fallido. Si cambia a completado, notifica automáticamente a orders-service.
 
 Body JSON:
 ```json
@@ -429,17 +399,17 @@ Respuesta (200):
 
 ---
 
-## Flujo de pagos (resumen)
+## Flujo de pagos 
 
 1. Cliente hace un pedido en orders-service (estado: CREADO)
 2. Cliente procesa pago → **POST** `/api/pagos/procesar`
-3. Payments simula pago (80% éxito):
-   - Si **exitoso**: estado = `completado`, notifica a orders → estado pedido cambia a `PAGADO`
-   - Si **falla**: estado = `fallido`, pedido se queda en `CREADO`
+3. Payments simula pago:
+   - Si **exitoso**: estado = `completado`, notifica a orders y el estado del pedido cambia a `PAGADO`
+   - Si **falla**: estado = `fallido`, el pedido se queda en `CREADO`
 4. Cliente puede reintentar o pagar nuevo
-5. Cliente ve historial de pagos → **GET** `/api/pagos/mis-pagos`
-6. Admin ve estadísticas → **GET** `/api/pagos/estadisticas`
-7. Admin puede cambiar estado manualmente → **PUT** `/{id}`
+5. Cliente ve historial de pagos con **GET** `/api/pagos/mis-pagos`
+6. Admin ve estadísticas con **GET** `/api/pagos/estadisticas`
+7. Admin puede cambiar estado manualmente usando **PUT** `/{id}`
 
 ---
 
@@ -462,7 +432,7 @@ curl -X POST http://127.0.0.1:8000/api/login \
   -d '{"correo":"usuario@example.com","clave":"Aa1!abcd"}'
 ```
 
-Copiar el `access_token` de la respuesta.
+Debes copiar el `access_token` de la respuesta.
 
 ### 4) Procesar pago con datos realistas:
 
@@ -601,22 +571,14 @@ stateDiagram-v2
 
 ## Errores comunes y soluciones
 
-- `npm install` falla con error jsonwebtoken → Usar versión `^9.0.3` (ya corregida en package.json)
-- `Cannot connect to database` → Verificar PostgreSQL en puerto 5432 o usar Docker
-- `Token inválido` → Token debe venir de auth-service, verificar que JWT_SECRET es el mismo
-- `Orders no se actualiza` → Verificar ORDERS_SERVICE_URL en .env coincide con puerto real de orders
-- Puerto 8002 ocupado → Cambiar PORT en .env a otro número
-- `docker-compose` no reconocido → Usar `docker compose` (sin guión)
+- `npm install` falla con error jsonwebtoken, ante esto se debe usar versión `^9.0.3`que ya esta corregida en package.json
+- Ante`Cannot connect to database` se debe verificar PostgreSQL en puerto 5432 o usar Docker
+- `Token inválido`, el token debe venir de auth-service, verificar que JWT_SECRET es el mismo
+- `Orders no se actualiza`, se debe verificar ORDERS_SERVICE_URL en .env coincide con puerto real de orders
+- Si sale puerto 8002 ocupado se debe cambiar PORT en .env a otro número
+- `docker-compose` no reconocido, ante esto se debe usar `docker compose` 
 
 ---
 
-## Notas finales
 
-- Los pagos se simulan: 80% éxito, 20% rechazo (para testing)
-- Todos los timestamps están en UTC
-- El JWT viene desde auth-service, no se genera en payments
-- La notificación a orders-service es automática pero no crítica (pago se registra igual si falla)
-- Para producción cambiar la simulación por un gateway real de pagos
-
----
 
