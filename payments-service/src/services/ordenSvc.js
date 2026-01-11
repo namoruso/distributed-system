@@ -11,7 +11,6 @@ const config = {
   timeout: TIMEOUT,
   headers: baseHeaders,
 };
-
 export const notifPago = async (idPedido, estado) => {
   try {
     const estadoMap = {
