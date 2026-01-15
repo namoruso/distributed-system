@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: pagos_db
     ports:
-      - "5433:5432"
+       - "5436:5432"
     volumes:
       - payments_data:/var/lib/postgresql/data
     networks:
@@ -24,7 +24,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       NODE_ENV: development
-      JWT_SECRET: secreto_jwt_super_seguro_payments
+      JWT_SECRET: MiSuperSecretKeyParaDistributed2025System!
       ORDERS_SERVICE_URL: http://host.docker.internal:8003/api
     ports:
       - "8002:8002"

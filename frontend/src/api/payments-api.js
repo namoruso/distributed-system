@@ -1,121 +1,89 @@
 import { paymentsAPI } from './axios-config.js';
 
-
-const mockPayments = {
-  createPayment: async (orderId, paymentData) => {
-    console.log('Mock: Creating payment for order', orderId, paymentData);
-    
-  
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            id: `pay_${Date.now()}`,
-            orderId,
-            amount: paymentData.amount,
-            method: paymentData.method,
-            status: 'COMPLETADO',
-            transactionId: `txn_${Math.random().toString(36).substr(2, 9)}`,
-            createdAt: new Date().toISOString()
-          }
-        });
-      }, 1000);
-    });
-  },
-
-  getPaymentByOrderId: async (orderId) => {
-    console.log('Mock: Fetching payment for order', orderId);
-    return {
-      success: true,
-      data: {
-        id: `pay_${orderId}`,
-        orderId,
-        amount: 111.00,
-        method: 'card',
-        status: 'COMPLETADO',
-        createdAt: new Date().toISOString()
-      }
-    };
-  },
-
-  getUserPayments: async () => {
-    return {
-      success: true,
-      data: []
-    };
-  },
-
-  getAllPayments: async () => {
-    return {
-      success: true,
-      data: []
-    };
-  }
-};
-
-
-const isPaymentsServiceActive = async () => {
+export const createPayment = async (paymentData) => {
   try {
-    await paymentsAPI.get('/health');
-    return true;
+    console.log('Sending payment request to:', '/pagos/procesar');
+    const maskedData = {
+      ...paymentData,
+      numTarjeta: '***' + (paymentData.numTarjeta || '').slice(-4),
+      cvv: '***'
+    };
+    console.log('Payment data being sent (masked for security):', maskedData);
+    
+    const response = await paymentsAPI.post('/pagos/procesar', paymentData);
+    
+    console.log('Payment response:', response.data);
+    return response.data;
   } catch (error) {
-    console.warn('Payments service not available, using mock data');
-    return false;
+    console.error('Payment API error details:');
+    
+    if (error.response) {
+      console.error('  Status:', error.response.status);
+      console.error('  Data:', error.response.data);
+      console.error('  Headers:', error.response.headers);
+      console.error('  Backend message:', error.response.data?.err || error.response.data?.message);
+    } else if (error.request) {
+      console.error('  No response received:', error.request);
+    } else {
+      console.error('  Error setting up request:', error.message);
+    }
+    
+    console.error('  Config URL:', error.config?.url);
+    console.error('  Config method:', error.config?.method);
+    console.error('  Config data:', error.config?.data);
+    
+    const enhancedError = new Error(
+      error.response?.data?.err || 
+      error.response?.data?.message || 
+      error.message || 
+      'Payment failed'
+    );
+    enhancedError.status = error.response?.status;
+    enhancedError.data = error.response?.data;
+    
+    throw enhancedError;
   }
 };
 
-
-export const createPayment = async (orderId, paymentData) => {
-  const isActive = await isPaymentsServiceActive();
-  
-  if (isActive) {
-    const response = await paymentsAPI.post('/payments', {
-      orderId,
-      ...paymentData
-    });
-    return response.data;
-  } else {
-    return mockPayments.createPayment(orderId, paymentData);
-  }
+export const getUserPayments = async (page = 1, limit = 10) => {
+  const response = await paymentsAPI.get('/pagos/mis-pagos', {
+    params: { page, limit }
+  });
+  return response.data;
 };
 
-export const getPaymentByOrderId = async (orderId) => {
-  const isActive = await isPaymentsServiceActive();
-  
-  if (isActive) {
-    const response = await paymentsAPI.get(`/payments/order/${orderId}`);
-    return response.data;
-  } else {
-    return mockPayments.getPaymentByOrderId(orderId);
-  }
+export const getPaymentById = async (paymentId) => {
+  const response = await paymentsAPI.get(`/pagos/${paymentId}`);
+  return response.data;
 };
 
-export const getUserPayments = async () => {
-  const isActive = await isPaymentsServiceActive();
-  
-  if (isActive) {
-    const response = await paymentsAPI.get('/payments/user');
-    return response.data;
-  } else {
-    return mockPayments.getUserPayments();
-  }
+export const getOrderPayments = async (orderId, page = 1, limit = 10) => {
+  const response = await paymentsAPI.get(`/pagos/pedido/${orderId}`, {
+    params: { page, limit }
+  });
+  return response.data;
 };
 
-export const getAllPayments = async () => {
-  const isActive = await isPaymentsServiceActive();
-  
-  if (isActive) {
-    const response = await paymentsAPI.get('/payments');
-    return response.data;
-  } else {
-    return mockPayments.getAllPayments();
-  }
+export const getPaymentStats = async () => {
+  const response = await paymentsAPI.get('/pagos/estadisticas');
+  return response.data;
+};
+
+export const updatePaymentStatus = async (paymentId, status) => {
+  const response = await paymentsAPI.put(`/pagos/${paymentId}`, { estado: status });
+  return response.data;
+};
+
+export const getCurrentToken = () => {
+  return localStorage.getItem('jwt_token');
 };
 
 export default {
   createPayment,
-  getPaymentByOrderId,
   getUserPayments,
-  getAllPayments
+  getPaymentById,
+  getOrderPayments,
+  getPaymentStats,
+  updatePaymentStatus,
+  getCurrentToken
 };

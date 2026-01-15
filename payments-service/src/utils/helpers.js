@@ -38,16 +38,16 @@ export const obtMarca = (numTarjeta) => {
 export const valCvv = (cvv, marca) => {
   const longExpected = marca === 'amex' ? 4 : 3;
   const esValido = /^\d+$/.test(cvv) && cvv.length === longExpected;
-  return { 
-    valido: esValido, 
-    msg: esValido ? 'CVV válido' : `CVV debe tener ${longExpected} dígitos` 
+  return {
+    valido: esValido,
+    msg: esValido ? 'CVV válido' : `CVV debe tener ${longExpected} dígitos`
   };
 };
 
 // Chequea si la tarjeta está vencida 
 export const valVen = (fecha) => {
   const [mes, ano] = fecha.split('/');
-  
+
   if (!mes || !ano || mes.length !== 2 || ano.length !== 2) {
     return { valido: false, msg: 'Formato debe ser MM/YY' };
   }
@@ -62,10 +62,10 @@ export const valVen = (fecha) => {
   }
 
   const vencido = anoNum < anoActual || (anoNum === anoActual && mesNum < mesActual);
-  
-  return { 
-    valido: !vencido, 
-    msg: vencido ? 'Tarjeta vencida' : 'Fecha válida' 
+
+  return {
+    valido: !vencido,
+    msg: vencido ? 'Tarjeta vencida' : 'Fecha válida'
   };
 };
 
@@ -86,15 +86,30 @@ export const mapEst = (estPago) => {
 
 // Simula un pago
 export const simPago = (numTarjeta = '', porcentajeExito = 80) => {
+  // Tarjetas que siempre tienen éxito
+  const tarjExito = [
+    '4111111111111111',  // Visa test card
+  ];
+
+  // Tarjetas que siempre fallan
   const tarjFallo = [
     '4000000000000002',
     '5555555555554444',
   ];
 
-  if (tarjFallo.includes(numTarjeta.replace(/\s/g, ''))) {
+  const numLimpio = numTarjeta.replace(/\s/g, '');
+
+  // Si está en la lista de éxito, siempre retorna true
+  if (tarjExito.includes(numLimpio)) {
+    return true;
+  }
+
+  // Si está en la lista de fallo, siempre retorna false
+  if (tarjFallo.includes(numLimpio)) {
     return false;
   }
 
+  // Para otras tarjetas, usa el porcentaje de éxito
   if (porcentajeExito < 0 || porcentajeExito > 100) {
     porcentajeExito = 80;
   }

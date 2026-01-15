@@ -12,17 +12,13 @@
             </div>
 
             <div class="order-status">
-            <span class="badge" :class="getStatusClass(order.status)">
-              {{ order.status }}
-            </span>
-            <span v-if="order.paymentStatus" class="payment-status">
-              ({{ order.paymentStatus }})
-            </span>
-          </div>
+              <OrderStatusBadge :status="order.status" />
+              <span v-if="order.status === 'PAGADO'" class="payment-info">
+                (Paid on {{ formatDate(order.paidAt) }})
+              </span>
+            </div>
             
           </div>
-
-          
 
           <div class="order-items">
             <div v-for="item in order.items" :key="item.id" class="order-item">
@@ -78,8 +74,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useCartStore } from '../store/cart-store';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
+import OrderStatusBadge from '../components/OrderStatusBadge.vue';
+
 
 const router = useRouter();
 const cartStore = useCartStore();

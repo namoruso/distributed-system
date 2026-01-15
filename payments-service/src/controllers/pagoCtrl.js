@@ -1,7 +1,7 @@
 import { Pago } from '../models/index.js';
-import { 
-  simPago, 
-  genRef, 
+import {
+  simPago,
+  genRef,
   validarMonto,
   valTar,
   valCvv,
@@ -12,35 +12,53 @@ import { notifPago } from '../services/ordenSvc.js';
 
 // Procesa un pago con tarjeta
 export const procesar = async (req, res) => {
+  
+
   const { idPedido, monto, numTarjeta, cvv, vencimiento, nombreTitular, email } = req.body;
   const idUsuario = req.usuario.id;
 
+  
+
   if (!idPedido || !monto) {
+    console.log(' Validation failed: Missing idPedido or monto');
+    console.log('  idPedido value:', idPedido, 'type:', typeof idPedido);
+    console.log('  monto value:', monto, 'type:', typeof monto);
     return res.status(400).json({ err: 'Pedido y monto requeridos' });
   }
 
   if (!validarMonto(monto)) {
+    console.log('Validation failed: Invalid monto');
+    console.log('  monto value:', monto, 'validarMonto result:', validarMonto(monto));
     return res.status(400).json({ err: 'Monto debe ser mayor a 0' });
   }
 
   if (!numTarjeta || !cvv || !vencimiento || !nombreTitular) {
+    console.log('Validation failed: Missing card data', {
+      hasNumTarjeta: !!numTarjeta,
+      hasCvv: !!cvv,
+      hasVencimiento: !!vencimiento,
+      hasNombreTitular: !!nombreTitular
+    });
     return res.status(400).json({ err: 'Faltan datos de la tarjeta' });
   }
 
   const numLim = numTarjeta.replace(/\s/g, '');
   const resVal = valTar(numLim);
   if (!resVal.valido) {
+    console.log('Validation failed: Invalid card number');
     return res.status(400).json({ err: 'Número de tarjeta inválido' });
   }
 
   const marca = obtMarca(numLim);
   const resCvv = valCvv(cvv, marca);
   if (!resCvv.valido) {
+    console.log('Validation failed: Invalid CVV');
     return res.status(400).json({ err: resCvv.msg });
   }
 
   const resVen = valVen(vencimiento);
   if (!resVen.valido) {
+    console.log('Validation failed: Invalid expiry date');
     return res.status(400).json({ err: resVen.msg });
   }
 
