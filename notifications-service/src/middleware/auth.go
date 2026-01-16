@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -11,46 +11,58 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func VerifyToken(ctx *gin.Context) {
-	data := ctx.GetHeader("Authorization")
-	dataList := strings.Split(data, " ")
+func obtainTokenInfo(tokenData string) (jwt.MapClaims, error) {
+	dataList := strings.Split(tokenData, " ")
 
-	if data == "" || dataList[0] != "Bearer" || len(dataList) != 2 {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"Success": false,
-			"Error":   "Error validating data, without authorization",
-		})
-		return
+	if tokenData == "" || dataList[0] != "Bearer" || len(dataList) != 2 {
+		return nil, errors.New("Error validating data, without authorization")
 	}
 
 	token := dataList[1]
 
-	tokenInfo, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+	info, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method")
+			return nil, errors.New("unexpected signing method")
 		}
 		return []byte(utils.GetVar("JWT_SECRET_KEY", "")), nil
 	})
 
-	if err != nil || !tokenInfo.Valid {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"Success": false,
-			"Error":   "Error validating data, without authorization",
-		})
-		return
+	if err != nil || !info.Valid {
+		return nil, errors.New("Error validating data, without authorization")
 	}
 
-	tokenClaims, ok := tokenInfo.Claims.(jwt.MapClaims)
+	claims, ok := info.Claims.(jwt.MapClaims)
 
 	if !ok {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"Success": false,
-			"Error":   "Error validating data, without authorization",
-		})
-		return
+		return nil, errors.New("Error validating data, without authorization")
 	}
 
-	ctx.Set("email", tokenClaims["correo"].(string))
-	ctx.Set("role", tokenClaims["rol"].(string))
-	ctx.Next()
+	return claims, nil
+}
+
+func Auth(allowedRoles ...string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		claims, err := obtainTokenInfo(ctx.GetHeader("Authorization"))
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Success": false, "Error": err.Error()})
+			return
+		}
+
+		role := claims["rol"].(string)
+		isAllowed := false
+		for _, r := range allowedRoles {
+			if role == r {
+				isAllowed = true
+				break
+			}
+		}
+
+		if !isAllowed {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"Success": false, "Error": "Error validating data, without authorization"})
+			return
+		}
+
+		ctx.Set("email", claims["correo"].(string))
+		ctx.Next()
+	}
 }

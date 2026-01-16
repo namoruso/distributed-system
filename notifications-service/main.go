@@ -23,8 +23,9 @@ func main() {
 
 	api := router.Group("/notifications")
 	{
-		api.GET("", middleware.VerifyToken, controllers.GetNotifications)
-		api.POST("", middleware.VerifyToken, controllers.SendNotification)
+		api.GET("/all", middleware.Auth("admin"), controllers.GetAllNotifications)
+		api.GET("/:id", middleware.Auth("user", "admin"), controllers.GetNotifications)
+		api.POST("", middleware.Auth("user", "admin"), controllers.CreatedNotification)
 	}
 
 	router.Run(":" + utils.GetVar("PORT", "5040"))
