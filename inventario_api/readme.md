@@ -1,4 +1,4 @@
-# Products Service API
+# Inventory Service API
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)]
 [![Laravel](https://img.shields.io/badge/Axum-0.7-yellow.svg)]
