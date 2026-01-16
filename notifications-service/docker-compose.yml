@@ -3,6 +3,6 @@ services:
     build: .
     container_name: golang_gin_app
     ports:
-      - "8080:8080"
+      - "5040:5040"
     env_file:
       - .env
