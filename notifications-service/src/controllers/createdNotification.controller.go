@@ -35,8 +35,9 @@ func CreatedNotification(c *gin.Context) {
 	db.Database.Data[strconv.Itoa(content.ID)] = content
 	db.Database.Mu.Unlock()
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
+		"data":    content,
 		"message": "Notification created",
 	})
 }

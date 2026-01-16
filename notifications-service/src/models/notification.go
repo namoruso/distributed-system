@@ -3,9 +3,9 @@ package models
 import "time"
 
 type Notification struct {
-	ID        int       `json:"id"`
-	State     string    `json:"state"`
-	Email     string    `json:"userEmail"`
+	ID        int       `json:"id" binding:"required"`
+	State     string    `json:"state" binding:"required"`
+	Email     string    `json:"userEmail" binding:"required"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdateAt  time.Time `json:"updateAt"`
 }
