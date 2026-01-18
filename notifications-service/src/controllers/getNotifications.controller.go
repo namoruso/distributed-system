@@ -24,7 +24,7 @@ func GetNotifications(c *gin.Context) {
 		})
 		return
 	}
-	ntf := "Your order is " + strings.ToLower(data.State)
+	ntf := "Your order has been " + strings.ToLower(data.State)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": ntf,
