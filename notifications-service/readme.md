@@ -157,7 +157,7 @@ Authorization: Bearer {token}
             "createdAt":"2026-01-15T14:50:00Z",
             "updateAt":"2026-01-15T14:50:00Z"
     },
-    "message":"Your order is created",
+    "message":"Your order has been created",
     "success":true
 }
 ```
@@ -166,7 +166,7 @@ Authorization: Bearer {token}
 
 ```json
 {
-    "message": "Error al obtener los datos o producto inexistente"
+    "message": "Notification not found"
 }
 ```
 
