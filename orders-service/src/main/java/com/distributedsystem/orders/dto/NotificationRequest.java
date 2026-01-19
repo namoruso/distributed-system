@@ -17,9 +17,9 @@ public class NotificationRequest {
     @JsonProperty("email")
     private String userEmail;
 
-    private String state; // ORDER_CREATED, ORDER_PAID, ORDER_SHIPPED, ORDER_COMPLETED, ORDER_CANCELLED
+    private String state;
 
     private String message;
 
-    private Object metadata; // Additional data like order details, tracking number, etc.
+    private Object metadata;
 }
