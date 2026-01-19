@@ -1,0 +1,153 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from dockerfile
+#1 transferring dockerfile: 412B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/golang:1.23-alpine
+#2 DONE 0.3s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [builder 1/7] FROM docker.io/library/golang:1.23-alpine@sha256:383395b794dffa5b53012a212365d40c8e37109a626ca30d6151c8348d380b5f
+#4 resolve docker.io/library/golang:1.23-alpine@sha256:383395b794dffa5b53012a212365d40c8e37109a626ca30d6151c8348d380b5f 0.0s done
+#4 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 4.70kB done
+#5 DONE 0.0s
+
+#6 [builder 2/7] WORKDIR /app
+#6 CACHED
+
+#7 [builder 3/7] COPY go.mod go.sum ./
+#7 CACHED
+
+#8 [builder 4/7] RUN go version && go mod download -x
+#8 0.319 go version go1.23.12 linux/amd64
+#8 0.330 # get https://proxy.golang.org/github.com/klauspost/cpuid/v2/@v/v2.3.0.mod
+#8 0.330 # get https://proxy.golang.org/github.com/bytedance/sonic/loader/@v/v0.4.0.mod
+#8 0.330 # get https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.14.2.mod
+#8 0.330 # get https://proxy.golang.org/github.com/cloudwego/base64x/@v/v0.1.6.mod
+#8 0.330 # get https://proxy.golang.org/github.com/goccy/go-yaml/@v/v1.19.2.mod
+#8 0.330 # get https://proxy.golang.org/github.com/go-playground/universal-translator/@v/v0.18.1.mod
+#8 0.330 # get https://proxy.golang.org/github.com/go-playground/locales/@v/v0.14.1.mod
+#8 0.331 # get https://proxy.golang.org/github.com/go-playground/validator/v10/@v/v10.30.1.mod
+#8 0.331 # get https://proxy.golang.org/github.com/golang-jwt/jwt/v5/@v/v5.3.0.mod
+#8 0.331 # get https://proxy.golang.org/github.com/goccy/go-json/@v/v0.10.5.mod
+#8 0.331 # get https://proxy.golang.org/github.com/gin-gonic/gin/@v/v1.11.0.mod
+#8 0.331 # get https://proxy.golang.org/github.com/joho/godotenv/@v/v1.5.1.mod
+#8 0.331 # get https://proxy.golang.org/github.com/json-iterator/go/@v/v1.1.12.mod
+#8 0.331 # get https://proxy.golang.org/github.com/gin-contrib/sse/@v/v1.1.0.mod
+#8 0.331 # get https://proxy.golang.org/github.com/gabriel-vasile/mimetype/@v/v1.4.12.mod
+#8 0.332 # get https://proxy.golang.org/github.com/bytedance/gopkg/@v/v0.1.3.mod
+#8 0.710 # get https://proxy.golang.org/github.com/bytedance/sonic/loader/@v/v0.4.0.mod: 200 OK (0.380s)
+#8 0.713 # get https://proxy.golang.org/github.com/goccy/go-json/@v/v0.10.5.mod: 200 OK (0.382s)
+#8 0.713 # get https://proxy.golang.org/github.com/leodido/go-urn/@v/v1.4.0.mod
+#8 0.713 # get https://proxy.golang.org/github.com/joho/godotenv/@v/v1.5.1.mod: 200 OK (0.382s)
+#8 0.713 # get https://proxy.golang.org/github.com/cloudwego/base64x/@v/v0.1.6.mod: 200 OK (0.383s)
+#8 0.714 # get https://proxy.golang.org/github.com/mattn/go-isatty/@v/v0.0.20.mod
+#8 0.714 # get https://proxy.golang.org/github.com/modern-go/concurrent/@v/v0.0.0-20180306012644-bacd9c7ef1dd.mod
+#8 0.714 # get https://proxy.golang.org/github.com/go-playground/locales/@v/v0.14.1.mod: 200 OK (0.384s)
+#8 0.714 # get https://proxy.golang.org/github.com/bytedance/gopkg/@v/v0.1.3.mod: 200 OK (0.383s)
+#8 0.715 # get https://proxy.golang.org/github.com/go-playground/universal-translator/@v/v0.18.1.mod: 200 OK (0.385s)
+#8 0.715 # get https://proxy.golang.org/github.com/modern-go/reflect2/@v/v1.0.2.mod
+#8 0.715 # get https://proxy.golang.org/github.com/pelletier/go-toml/v2/@v/v2.2.4.mod
+#8 0.716 # get https://proxy.golang.org/github.com/quic-go/qpack/@v/v0.6.0.mod
+#8 0.716 # get https://proxy.golang.org/github.com/quic-go/quic-go/@v/v0.58.0.mod
+#8 0.716 # get https://proxy.golang.org/github.com/klauspost/cpuid/v2/@v/v2.3.0.mod: 200 OK (0.386s)
+#8 0.717 # get https://proxy.golang.org/github.com/twitchyliquid64/golang-asm/@v/v0.15.1.mod
+#8 0.787 # get https://proxy.golang.org/github.com/gin-contrib/sse/@v/v1.1.0.mod: 200 OK (0.455s)
+#8 0.787 # get https://proxy.golang.org/github.com/go-playground/validator/v10/@v/v10.30.1.mod: 200 OK (0.457s)
+#8 0.788 # get https://proxy.golang.org/github.com/ugorji/go/codec/@v/v1.3.1.mod
+#8 0.789 # get https://proxy.golang.org/go.uber.org/mock/@v/v0.6.0.mod
+#8 0.796 # get https://proxy.golang.org/github.com/gin-gonic/gin/@v/v1.11.0.mod: 200 OK (0.465s)
+#8 0.798 # get https://proxy.golang.org/github.com/gabriel-vasile/mimetype/@v/v1.4.12.mod: 200 OK (0.467s)
+#8 0.798 # get https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.14.2.mod: 200 OK (0.469s)
+#8 0.799 # get https://proxy.golang.org/golang.org/x/arch/@v/v0.23.0.mod
+#8 0.799 # get https://proxy.golang.org/golang.org/x/crypto/@v/v0.46.0.mod
+#8 0.799 # get https://proxy.golang.org/github.com/goccy/go-yaml/@v/v1.19.2.mod: 200 OK (0.469s)
+#8 0.799 # get https://proxy.golang.org/github.com/golang-jwt/jwt/v5/@v/v5.3.0.mod: 200 OK (0.469s)
+#8 0.800 # get https://proxy.golang.org/github.com/json-iterator/go/@v/v1.1.12.mod: 200 OK (0.468s)
+#8 0.801 # get https://proxy.golang.org/golang.org/x/net/@v/v0.48.0.mod
+#8 0.801 # get https://proxy.golang.org/golang.org/x/sys/@v/v0.40.0.mod
+#8 0.801 # get https://proxy.golang.org/golang.org/x/text/@v/v0.33.0.mod
+#8 0.807 # get https://proxy.golang.org/google.golang.org/protobuf/@v/v1.36.11.mod
+#8 0.809 # get https://proxy.golang.org/github.com/twitchyliquid64/golang-asm/@v/v0.15.1.mod: 200 OK (0.092s)
+#8 0.810 # get https://proxy.golang.org/github.com/quic-go/qpack/@v/v0.6.0.mod: 200 OK (0.094s)
+#8 0.810 # get https://proxy.golang.org/github.com/davecgh/go-spew/@v/v1.1.1.mod
+#8 0.811 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.10.0.mod
+#8 0.811 # get https://proxy.golang.org/github.com/quic-go/quic-go/@v/v0.58.0.mod: 200 OK (0.095s)
+#8 0.812 # get https://proxy.golang.org/github.com/google/gofuzz/@v/v1.0.0.mod
+#8 0.812 # get https://proxy.golang.org/github.com/modern-go/reflect2/@v/v1.0.2.mod: 200 OK (0.097s)
+#8 0.812 # get https://proxy.golang.org/github.com/modern-go/concurrent/@v/v0.0.0-20180306012644-bacd9c7ef1dd.mod: 200 OK (0.098s)
+#8 0.812 # get https://proxy.golang.org/github.com/pelletier/go-toml/v2/@v/v2.2.4.mod: 200 OK (0.097s)
+#8 0.812 # get https://proxy.golang.org/github.com/mattn/go-isatty/@v/v0.0.20.mod: 200 OK (0.098s)
+#8 0.812 # get https://proxy.golang.org/github.com/leodido/go-urn/@v/v1.4.0.mod: 200 OK (0.099s)
+#8 0.813 # get https://proxy.golang.org/github.com/modern-go/concurrent/@v/v0.0.0-20180228061459-e0a39a4cb421.mod
+#8 0.813 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.3.0.mod
+#8 0.814 # get https://proxy.golang.org/golang.org/x/sys/@v/v0.6.0.mod
+#8 0.879 # get https://proxy.golang.org/go.uber.org/mock/@v/v0.6.0.mod: 200 OK (0.090s)
+#8 0.881 # get https://proxy.golang.org/github.com/ugorji/go/codec/@v/v1.3.1.mod: 200 OK (0.093s)
+#8 0.886 # get https://proxy.golang.org/golang.org/x/arch/@v/v0.23.0.mod: 200 OK (0.087s)
+#8 0.893 # get https://proxy.golang.org/golang.org/x/crypto/@v/v0.46.0.mod: 200 OK (0.094s)
+#8 0.894 # get https://proxy.golang.org/golang.org/x/sys/@v/v0.40.0.mod: 200 OK (0.093s)
+#8 0.894 # get https://proxy.golang.org/golang.org/x/text/@v/v0.33.0.mod: 200 OK (0.093s)
+#8 0.894 # get https://proxy.golang.org/golang.org/x/net/@v/v0.48.0.mod: 200 OK (0.094s)
+#8 0.899 # get https://proxy.golang.org/golang.org/x/sys/@v/v0.6.0.mod: 200 OK (0.085s)
+#8 0.899 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.3.0.mod: 200 OK (0.086s)
+#8 0.900 # get https://proxy.golang.org/github.com/modern-go/concurrent/@v/v0.0.0-20180228061459-e0a39a4cb421.mod: 200 OK (0.086s)
+#8 0.900 # get https://proxy.golang.org/github.com/google/gofuzz/@v/v1.0.0.mod: 200 OK (0.088s)
+#8 0.901 # get https://proxy.golang.org/github.com/davecgh/go-spew/@v/v1.1.0.mod
+#8 0.901 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.1.0.mod
+#8 0.901 # get https://proxy.golang.org/github.com/pmezard/go-difflib/@v/v1.0.0.mod
+#8 0.901 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.10.0.mod: 200 OK (0.090s)
+#8 0.901 # get https://proxy.golang.org/google.golang.org/protobuf/@v/v1.36.11.mod: 200 OK (0.095s)
+#8 0.902 # get https://proxy.golang.org/gopkg.in/yaml.v3/@v/v3.0.1.mod
+#8 0.902 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.5.2.mod
+#8 0.906 # get https://proxy.golang.org/github.com/davecgh/go-spew/@v/v1.1.1.mod: 200 OK (0.095s)
+#8 0.981 # get https://proxy.golang.org/github.com/davecgh/go-spew/@v/v1.1.0.mod: 200 OK (0.080s)
+#8 0.984 # get https://proxy.golang.org/gopkg.in/yaml.v3/@v/v3.0.1.mod: 200 OK (0.081s)
+#8 0.997 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.1.0.mod: 200 OK (0.082s)
+#8 0.997 # get https://proxy.golang.org/github.com/pmezard/go-difflib/@v/v1.0.0.mod: 200 OK (0.082s)
+#8 0.997 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.5.2.mod: 200 OK (0.085s)
+#8 0.997 # get https://proxy.golang.org/gopkg.in/check.v1/@v/v0.0.0-20161208181325-20d25e280405.mod
+#8 0.998 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.8.4.mod
+#8 1.068 # get https://proxy.golang.org/gopkg.in/check.v1/@v/v0.0.0-20161208181325-20d25e280405.mod: 200 OK (0.077s)
+#8 1.076 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.8.4.mod: 200 OK (0.077s)
+#8 1.077 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.5.0.mod
+#8 1.157 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.5.0.mod: 200 OK (0.081s)
+#8 1.159 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.8.0.mod
+#8 1.238 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.8.0.mod: 200 OK (0.079s)
+#8 1.239 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.4.0.mod
+#8 1.319 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.4.0.mod: 200 OK (0.080s)
+#8 1.322 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.7.1.mod
+#8 1.400 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.7.1.mod: 200 OK (0.077s)
+#8 1.401 # get https://proxy.golang.org/gopkg.in/yaml.v3/@v/v3.0.0-20200313102051-9f266ea9e77c.mod
+#8 1.479 # get https://proxy.golang.org/gopkg.in/yaml.v3/@v/v3.0.0-20200313102051-9f266ea9e77c.mod: 200 OK (0.078s)
+#8 1.481 go: github.com/go-playground/validator/v10@v10.30.1: module github.com/go-playground/validator/v10@v10.30.1 requires go >= 1.24.0 (running go 1.23.12; GOTOOLCHAIN=local)
+#8 ERROR: process "/bin/sh -c go version && go mod download -x" did not complete successfully: exit code: 1
+------
+ > [builder 4/7] RUN go version && go mod download -x:
+1.157 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.5.0.mod: 200 OK (0.081s)
+1.159 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.8.0.mod
+1.238 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.8.0.mod: 200 OK (0.079s)
+1.239 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.4.0.mod
+1.319 # get https://proxy.golang.org/github.com/stretchr/objx/@v/v0.4.0.mod: 200 OK (0.080s)
+1.322 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.7.1.mod
+1.400 # get https://proxy.golang.org/github.com/stretchr/testify/@v/v1.7.1.mod: 200 OK (0.077s)
+1.401 # get https://proxy.golang.org/gopkg.in/yaml.v3/@v/v3.0.0-20200313102051-9f266ea9e77c.mod
+1.479 # get https://proxy.golang.org/gopkg.in/yaml.v3/@v/v3.0.0-20200313102051-9f266ea9e77c.mod: 200 OK (0.078s)
+1.481 go: github.com/go-playground/validator/v10@v10.30.1: module github.com/go-playground/validator/v10@v10.30.1 requires go >= 1.24.0 (running go 1.23.12; GOTOOLCHAIN=local)
+------
+dockerfile:4
+--------------------
+   2 |     WORKDIR /app
+   3 |     COPY go.mod go.sum ./
+   4 | >>> RUN go version && go mod download -x
+   5 |     COPY . .
+   6 |     RUN go get github.com/gin-contrib/cors
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c go version && go mod download -x" did not complete successfully: exit code: 1

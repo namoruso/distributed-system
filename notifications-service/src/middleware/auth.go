@@ -42,6 +42,12 @@ func obtainTokenInfo(tokenData string) (jwt.MapClaims, error) {
 
 func Auth(allowedRoles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		
+		if ctx.Request.Method == "OPTIONS" {
+			ctx.Next()
+			return
+		}
+
 		claims, err := obtainTokenInfo(ctx.GetHeader("Authorization"))
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Success": false, "Error": err.Error()})

@@ -3,15 +3,19 @@ package models
 import "time"
 
 type Notification struct {
-	ID        int       `json:"id" binding:"required"`
+	ID        string    `json:"id" binding:"required"`
+	OrderID   int64     `json:"orderId" binding:"required"`
+	Email     string    `json:"email" binding:"required"`
 	State     string    `json:"state" binding:"required"`
-	Email     string    `json:"userEmail" binding:"required"`
+	Message   string    `json:"message"`
+	Read      bool      `json:"read"`
 	CreatedAt time.Time `json:"createdAt"`
-	UpdateAt  time.Time `json:"updateAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-type UpdateNotification struct {
-	ID       int       `json:"id"`
-	State    string    `json:"state"`
-	UpdateAt time.Time `json:"updateAt"`
+type CreateNotificationRequest struct {
+	OrderID int64  `json:"orderId" binding:"required"`
+	Email   string `json:"email" binding:"required"`
+	State   string `json:"state" binding:"required"`
+	Message string `json:"message"`
 }

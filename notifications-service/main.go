@@ -18,15 +18,22 @@ func main() {
 	}
 
 	router := gin.Default()
+
 	router.Use(middleware.CorsConfig())
+	
 	router.SetTrustedProxies([]string{"127.0.0.1"})
 
-	api := router.Group("/notifications")
-	{
-		api.GET("/all", middleware.Auth("admin"), controllers.GetAllNotifications)
-		api.GET("/:id", middleware.Auth("user", "admin"), controllers.GetNotifications)
-		api.POST("", middleware.Auth("user", "admin"), controllers.CreatedNotification)
-	}
+	router.GET("/api/health", controllers.Health)
+
+	router.GET("/api/notifications/all", middleware.Auth("admin"), controllers.GetAllNotifications)
+	
+	router.GET("/api/notifications", middleware.Auth("user", "admin"), controllers.GetUserNotifications)
+	
+	router.GET("/api/notifications/:id", middleware.Auth("user", "admin"), controllers.GetNotificationById)
+	
+	router.PUT("/api/notifications/:id/read", middleware.Auth("user", "admin"), controllers.MarkAsRead)
+	
+	router.POST("/api/notifications", controllers.CreateNotification)
 
 	router.Run(":" + utils.GetVar("PORT", "5040"))
 }

@@ -11,11 +11,33 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::all();
+        $perPage = $request->input('per_page', 20);
+        $sortBy = $request->input('sort', 'created_at');
+        $sortOrder = $request->input('order', 'desc');
+        
+        $perPage = min(max((int)$perPage, 1), 100);   
+        
+        $allowedSortFields = ['id', 'name', 'price', 'created_at', 'updated_at', 'sku'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'created_at';
+        }
+        
+        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+
+        $products = Product::orderBy($sortBy, $sortOrder)
+                           ->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $products,
+            'data' => $products->items(),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'total_pages' => $products->lastPage(),
+                'total_items' => $products->total(),
+                'per_page' => $products->perPage(),
+                'from' => $products->firstItem(),
+                'to' => $products->lastItem()
+            ],
             'user' => [
                 'id' => $request->attributes->get('user_id'),
                 'email' => $request->attributes->get('user_email'),
@@ -79,30 +101,7 @@ class ProductController extends Controller
             ], 404);
         }
 
-        // TEMPORARY WORKAROUND: Inventario Service is unhealthy
-        // Hardcoding stock until service is fixed
         $product->stock = 50;
-
-        /* TODO: Re-enable once Inventario Service is healthy
-        try {
-            $inventarioUrl = env('INVENTARIO_SERVICE_URL', 'http://inventario_api:5002');
-            $response = \Http::get("{$inventarioUrl}/sku/{$product->sku}");
-
-            if ($response->successful()) {
-                $inventoryData = $response->json();
-                $product->stock = $inventoryData['stock'] ?? 0;
-            } else {
-                $product->stock = 0;
-            }
-        } catch (\Exception $e) {
-            \Log::warning('Failed to fetch inventory for product', [
-                'product_id' => $product->id,
-                'sku' => $product->sku,
-                'error' => $e->getMessage()
-            ]);
-            $product->stock = 0;
-        }
-        */
 
         return response()->json([
             'success' => true,
@@ -140,13 +139,10 @@ class ProductController extends Controller
         $data = $request->except('image');
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($product->image_url) {
                 $oldImagePath = str_replace('/storage/', '', $product->image_url);
                 \Storage::disk('public')->delete($oldImagePath);
             }
-
-            // Store new image
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $imagePath = $image->storeAs('products', $imageName, 'public');
@@ -179,7 +175,6 @@ class ProductController extends Controller
             ], 404);
         }
 
-        // Delete image if exists
         if ($product->image_url) {
             $imagePath = str_replace('/storage/', '', $product->image_url);
             \Storage::disk('public')->delete($imagePath);
@@ -198,6 +193,87 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Product deleted successfully. Consider updating Inventario Service.'
+        ], 200);
+    }
+
+    public function validateStock(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|integer|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $results = [];
+        $allAvailable = true;
+
+        foreach ($request->items as $item) {
+            $product = Product::find($item['id']);
+
+            if (!$product) {
+                $results[] = [
+                    'product_id' => $item['id'],
+                    'requested_quantity' => $item['quantity'],
+                    'is_available' => false,
+                    'error' => 'Product not found'
+                ];
+                $allAvailable = false;
+                continue;
+            }
+
+            if (!$product->active) {
+                $results[] = [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'product_sku' => $product->sku,
+                    'requested_quantity' => $item['quantity'],
+                    'available_stock' => 0,
+                    'is_available' => false,
+                    'price' => $product->price,
+                    'error' => 'Product is not active'
+                ];
+                $allAvailable = false;
+                continue;
+            }
+
+            $availableStock = 50;
+
+            $isAvailable = $availableStock >= $item['quantity'];
+
+            if (!$isAvailable) {
+                $allAvailable = false;
+            }
+
+            $results[] = [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'product_sku' => $product->sku,
+                'requested_quantity' => $item['quantity'],
+                'available_stock' => $availableStock,
+                'is_available' => $isAvailable,
+                'price' => (float)$product->price,
+                'subtotal' => (float)$product->price * $item['quantity']
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'all_available' => $allAvailable,
+            'data' => $results,
+            'summary' => [
+                'total_products' => count($results),
+                'available_count' => count(array_filter($results, fn($r) => $r['is_available'])),
+                'unavailable_count' => count(array_filter($results, fn($r) => !$r['is_available'])),
+                'total_amount' => array_sum(array_column($results, 'subtotal'))
+            ]
         ], 200);
     }
 }

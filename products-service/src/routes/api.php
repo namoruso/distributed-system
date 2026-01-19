@@ -26,7 +26,8 @@ Route::middleware('jwt.auth')->group(function () {
 
     Route::middleware(['role:user,admin'])->group(function () {
         Route::get('/products', [ProductController::class, 'index']);         
-        Route::get('/products/{id}', [ProductController::class, 'show']);       
+        Route::get('/products/{id}', [ProductController::class, 'show']);
+        Route::post('/products/validate-stock', [ProductController::class, 'validateStock']);       
     });
 
     Route::middleware(['role:admin'])->group(function () {

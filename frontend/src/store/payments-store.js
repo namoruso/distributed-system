@@ -29,8 +29,28 @@ export const usePaymentsStore = defineStore('payments', () => {
       loading.value = true;
       const response = await paymentsAPI.getUserPayments(page, limit);
       userPayments.value = response.pagos || [];
-      return response.paginacion; 
+      return response.paginacion;
+    } catch (err) {
       console.error('Failed to fetch user payments:', err);
+      error.value = err.message || 'Failed to fetch payments';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const fetchAllPayments = async (page = 1, limit = 100) => {
+    try {
+      loading.value = true;
+      error.value = null;
+
+      const response = await paymentsAPI.getUserPayments(page, limit);
+      payments.value = response.pagos || [];
+      return response;
+    } catch (err) {
+      console.error('Failed to fetch all payments:', err);
+      error.value = err.message || 'Failed to fetch payments';
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -42,6 +62,7 @@ export const usePaymentsStore = defineStore('payments', () => {
     loading,
     error,
     processPayment,
-    fetchUserPayments
+    fetchUserPayments,
+    fetchAllPayments
   };
 });

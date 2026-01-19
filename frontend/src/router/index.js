@@ -7,6 +7,7 @@ import RegisterPage from '../pages/RegisterPage.vue';
 import CatalogPage from '../pages/CatalogPage.vue';
 import CartPage from '../pages/CartPage.vue';
 import OrdersPage from '../pages/OrdersPage.vue';
+import OrderDetailPage from '../pages/OrderDetailPage.vue';
 
 import AdminDashboard from '../pages/admin/AdminDashboard.vue';
 import AdminProducts from '../pages/admin/AdminProducts.vue';
@@ -48,6 +49,12 @@ const routes = [
     meta: { requiresAuth: true, customerOnly: true }
   },
   {
+    path: '/orders/:id',
+    name: 'OrderDetail',
+    component: OrderDetailPage,
+    meta: { requiresAuth: true, customerOnly: true }
+  },
+  {
     path: '/admin',
     name: 'AdminDashboard',
     component: AdminDashboard,
@@ -69,6 +76,12 @@ const routes = [
     path: '/admin/payments',
     name: 'AdminPayments',
     component: () => import('../pages/admin/AdminPayments.vue'),
+    meta: { requiresAuth: true, adminOnly: true }
+  },
+  {
+    path: '/admin/orders',
+    name: 'AdminOrders',
+    component: () => import('../pages/AdminOrders.vue'),
     meta: { requiresAuth: true, adminOnly: true }
   },
   {

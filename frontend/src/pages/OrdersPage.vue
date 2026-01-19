@@ -3,18 +3,18 @@
     <div class="container">
       <h1>My Orders</h1>
 
-      <div v-if="cartStore.orders.length > 0" class="orders-list">
-        <div v-for="order in cartStore.orders" :key="order.id" class="order-card card">
+      <div v-if="ordersStore.orders.length > 0" class="orders-list">
+        <div v-for="order in ordersStore.orders" :key="order.id" class="order-card card">
           <div class="order-header">
             <div>
               <h3>Order #{{ order.id }}</h3>
-              <p class="order-date">{{ formatDate(order.date) }}</p>
+              <p class="order-date">{{ formatDate(order.createdAt) }}</p>
             </div>
 
             <div class="order-status">
               <OrderStatusBadge :status="order.status" />
               <span v-if="order.status === 'PAGADO'" class="payment-info">
-                (Paid on {{ formatDate(order.paidAt) }})
+                (Paid on {{ formatDate(order.updatedAt) }})
               </span>
             </div>
             
@@ -22,35 +22,34 @@
 
           <div class="order-items">
             <div v-for="item in order.items" :key="item.id" class="order-item">
-              <span class="item-name">{{ item.name }}</span>
+              <span class="item-name">{{ item.productName }}</span>
               <span class="item-quantity">x{{ item.quantity }}</span>
-              <span class="item-price">${{ (parseFloat(item.price) * item.quantity).toFixed(2) }}</span>
+              <span class="item-price">${{ (parseFloat(item.unitPrice) * item.quantity).toFixed(2) }}</span>
             </div>
           </div>
 
           <div class="order-footer">
             <div class="order-total">
               <span>Total:</span>
-              <span class="total-amount">${{ order.total.toFixed(2) }}</span>
+              <span class="total-amount">${{ order.totalAmount.toFixed(2) }}</span>
             </div>
             
-            <button
-              v-if="order.canReturn"
-              @click="handleReturn(order.id)"
-              class="btn btn-sm btn-outline"
-              :disabled="cartStore.loading"
-            >
-              Request Return
-            </button>
-            <button
-              v-if="order.status === 'CREADO'"
-              @click="goToPayment(order.id)"
-              class="btn btn-sm btn-primary"
-              :disabled="cartStore.loading"
-            >
-              Pay Now
-            </button>
-
+            <div class="order-actions">
+              <router-link
+                :to="`/orders/${order.id}`"
+                class="btn btn-sm btn-outline"
+              >
+                View Details
+              </router-link>
+              <button
+                v-if="order.status === 'CREADO'"
+                @click="goToPayment(order.id)"
+                class="btn btn-sm btn-primary"
+                :disabled="ordersStore.loading"
+              >
+                Pay Now
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -75,13 +74,13 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useCartStore } from '../store/cart-store';
+import { useOrdersStore } from '../store/orders-store';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import OrderStatusBadge from '../components/OrderStatusBadge.vue';
 
 
 const router = useRouter();
-const cartStore = useCartStore();
+const ordersStore = useOrdersStore();
 const showReturnConfirm = ref(false);
 const orderToReturn = ref(null);
 
@@ -116,16 +115,22 @@ const handleReturn = (orderId) => {
 const handleReturnConfirm = async () => {
   if (orderToReturn.value) {
     try {
-      await cartStore.returnOrder(orderToReturn.value);
+      await ordersStore.updateOrderStatus(orderToReturn.value, 'RETURNED');
       orderToReturn.value = null;
+      
+      await ordersStore.fetchOrders();
     } catch (error) {
       console.error('Failed to return order:', error);
     }
   }
 };
 
-onMounted(() => {
-  cartStore.initCart();
+onMounted(async () => {
+  try {
+    await ordersStore.fetchOrders();
+  } catch (error) {
+    console.error('Failed to load orders:', error);
+  }
 });
 </script>
 

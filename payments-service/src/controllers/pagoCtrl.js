@@ -10,7 +10,6 @@ import {
 } from '../utils/helpers.js';
 import { notifPago } from '../services/ordenSvc.js';
 
-// Procesa un pago con tarjeta
 export const procesar = async (req, res) => {
   
 
@@ -75,7 +74,6 @@ export const procesar = async (req, res) => {
       estado: 'pendiente',
     });
 
-    // Intenta procesar el pago 
     const exitoso = simPago(numLim);
 
     if (exitoso) {
@@ -85,7 +83,7 @@ export const procesar = async (req, res) => {
       await pago.save();
 
       try {
-        await notifPago(idPedido, 'completado');
+        await notifPago(idPedido, 'completado', monto);
       } catch (errOrd) {
         console.error('No se notificó orden:', errOrd.message);
       }
@@ -120,7 +118,6 @@ export const procesar = async (req, res) => {
   }
 };
 
-// Trae historial de pagos del usuario
 export const listar = async (req, res) => {
   const idUsuario = req.usuario.id;
   const page = parseInt(req.query.page) || 1;
@@ -168,7 +165,6 @@ export const listar = async (req, res) => {
   }
 };
 
-// Trae detalles de un pago en particular
 export const obtener = async (req, res) => {
   const { id } = req.params;
   const idUsuario = req.usuario.id;
@@ -202,7 +198,6 @@ export const obtener = async (req, res) => {
   }
 };
 
-// Trae todos los pagos de un pedido
 export const porPedido = async (req, res) => {
   const { idPedido } = req.params;
   const page = parseInt(req.query.page) || 1;
@@ -284,7 +279,6 @@ export const estadisticas = async (req, res) => {
   }
 };
 
-// Cambia estado de pago y avisa a órdenes
 export const actualizar = async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;

@@ -35,6 +35,8 @@
           <span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span>
         </router-link>
 
+        <NotificationBell v-if="isAuthenticated" />
+
         <div class="user-menu" v-if="isAuthenticated">
           <button class="user-button" @click="toggleUserMenu">
             <div class="avatar">{{ userInitial }}</div>
@@ -93,6 +95,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../store/auth-store';
 import { useCartStore } from '../store/cart-store';
+import NotificationBell from './NotificationBell.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();

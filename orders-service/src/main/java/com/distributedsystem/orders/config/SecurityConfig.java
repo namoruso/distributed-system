@@ -27,9 +27,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/health", "/actuator/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/orders/*/payment-callback").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/orders/**/status").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/orders", "/api/orders/*").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/*/status").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/orders/*/cancel").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

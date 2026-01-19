@@ -25,6 +25,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductServiceClient productServiceClient;
+    private final NotificationServiceClient notificationServiceClient;
 
     @Transactional
     public OrderDTO createOrder(CreateOrderRequest request, UserPrincipal userPrincipal, String jwtToken) {
@@ -41,10 +42,9 @@ public class OrderService {
         for (OrderItemDTO itemDTO : request.getItems()) {
             ProductDTO product = productServiceClient.getProduct(itemDTO.getProductId(), jwtToken);
 
-            // Handle null stock (Products Service might not return stock field)
             Integer productStock = product.getStock();
             if (productStock == null) {
-                productStock = 0; // Treat null as out of stock
+                productStock = 0;
             }
 
             if (productStock < itemDTO.getQuantity()) {
@@ -54,7 +54,6 @@ public class OrderService {
                         productStock);
             }
 
-            // Ensure price is not null (Products Service should always return a price)
             Double productPrice = product.getPrice();
             if (productPrice == null) {
                 log.error("Product {} has null price, defaulting to 0", product.getId());
@@ -70,7 +69,7 @@ public class OrderService {
                     .productName(product.getName())
                     .quantity(itemDTO.getQuantity())
                     .unitPrice(unitPrice)
-                    .subtotal(subtotal) // Initialize subtotal directly
+                    .subtotal(subtotal)
                     .build();
 
             order.addItem(orderItem);
@@ -78,6 +77,12 @@ public class OrderService {
 
         order.calculateTotalAmount();
         Order savedOrder = orderRepository.save(order);
+
+        notificationServiceClient.sendOrderNotification(
+                savedOrder.getId(),
+                savedOrder.getUserEmail(),
+                "ORDER_CREATED",
+                String.format("Your order #%d has been created successfully", savedOrder.getId()));
 
         log.info("Order created successfully: {}", savedOrder.getId());
         return convertToDTO(savedOrder);
@@ -95,6 +100,64 @@ public class OrderService {
         }
 
         return orders.map(this::convertToDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderDTO> getAllOrders(OrderStatus status, Pageable pageable) {
+        log.info("Admin fetching all orders. Status filter: {}", status);
+
+        Page<Order> orders;
+        if (status != null) {
+            orders = orderRepository.findByStatus(status, pageable);
+        } else {
+            orders = orderRepository.findAll(pageable);
+        }
+
+        return orders.map(this::convertToDTO);
+    }
+
+    @Transactional
+    public OrderDTO handlePaymentCallback(Long orderId, PaymentCallbackRequest request) {
+        log.info("Processing payment callback for order: {}, paymentId: {}, status: {}",
+                orderId, request.getPaymentId(), request.getStatus());
+
+        Order order = orderRepository.findByIdWithItems(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        if (!"completed".equalsIgnoreCase(request.getStatus())) {
+            log.warn("Payment callback received with non-completed status: {}", request.getStatus());
+            throw new IllegalArgumentException("Payment status must be 'completed'");
+        }
+
+        BigDecimal paymentAmount = BigDecimal.valueOf(request.getAmount());
+        if (paymentAmount.compareTo(order.getTotalAmount()) != 0) {
+            String errorMsg = String.format(
+                    "Payment amount (%.2f) does not match order total (%.2f)",
+                    paymentAmount, order.getTotalAmount());
+            log.error(errorMsg);
+            throw new IllegalArgumentException(errorMsg);
+        }
+
+        OrderStatus currentStatus = order.getStatus();
+        if (!currentStatus.canTransitionTo(OrderStatus.PAGADO)) {
+            String errorMsg = String.format(
+                    "Cannot mark order as paid. Current status: %s", currentStatus);
+            log.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
+        }
+
+        order.setStatus(OrderStatus.PAGADO);
+        Order updatedOrder = orderRepository.save(order);
+
+        notificationServiceClient.sendOrderNotification(
+                updatedOrder.getId(),
+                updatedOrder.getUserEmail(),
+                "ORDER_PAID",
+                String.format("Payment confirmed for order #%d. Your order will be shipped soon.",
+                        updatedOrder.getId()));
+
+        log.info("Order {} marked as PAGADO. PaymentId: {}", orderId, request.getPaymentId());
+        return convertToDTO(updatedOrder);
     }
 
     @Transactional(readOnly = true)
@@ -124,11 +187,82 @@ public class OrderService {
         Order order = orderRepository.findByIdWithItems(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
-        order.setStatus(request.getStatus());
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus targetStatus = request.getStatus();
+
+        if (!currentStatus.canTransitionTo(targetStatus)) {
+            String allowedTransitions = currentStatus.getAllowedTransitions().stream()
+                    .map(Enum::name)
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("none (final state)");
+
+            throw new IllegalStateException(
+                    String.format("Invalid status transition from %s to %s. Allowed transitions: %s",
+                            currentStatus, targetStatus, allowedTransitions));
+        }
+
+        order.setStatus(targetStatus);
         Order updatedOrder = orderRepository.save(order);
 
-        log.info("Order status updated successfully: {}", updatedOrder.getId());
+        String notificationState = getNotificationState(targetStatus);
+        String notificationMessage = String.format("Your order #%d status has been updated to %s",
+                updatedOrder.getId(), targetStatus.getDescription());
+
+        notificationServiceClient.sendOrderNotification(
+                updatedOrder.getId(),
+                updatedOrder.getUserEmail(),
+                notificationState,
+                notificationMessage);
+
+        log.info("Order status updated successfully: {} from {} to {}",
+                updatedOrder.getId(), currentStatus, targetStatus);
         return convertToDTO(updatedOrder);
+    }
+
+    @Transactional
+    public OrderDTO cancelOrder(Long orderId, UserPrincipal userPrincipal) {
+        log.info("Cancelling order: {} by user: {}", orderId, userPrincipal.getUserId());
+
+        Order order = orderRepository.findByIdWithItems(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        if (!userPrincipal.isAdmin() && !order.getUserId().equals(userPrincipal.getUserId())) {
+            throw new AccessDeniedException("You can only cancel your own orders");
+        }
+
+        OrderStatus currentStatus = order.getStatus();
+        if (currentStatus == OrderStatus.CANCELADO) {
+            throw new IllegalStateException("Order is already cancelled");
+        }
+
+        if (currentStatus != OrderStatus.CREADO && currentStatus != OrderStatus.PAGADO) {
+            throw new IllegalStateException(
+                    String.format(
+                            "Cannot cancel order in status %s. Orders can only be cancelled when CREADO or PAGADO",
+                            currentStatus));
+        }
+
+        order.setStatus(OrderStatus.CANCELADO);
+        Order updatedOrder = orderRepository.save(order);
+
+        notificationServiceClient.sendOrderNotification(
+                updatedOrder.getId(),
+                updatedOrder.getUserEmail(),
+                "ORDER_CANCELLED",
+                String.format("Your order #%d has been cancelled", updatedOrder.getId()));
+
+        log.info("Order {} cancelled successfully by user {}", orderId, userPrincipal.getUserId());
+        return convertToDTO(updatedOrder);
+    }
+
+    private String getNotificationState(OrderStatus status) {
+        return switch (status) {
+            case CREADO -> "ORDER_CREATED";
+            case PAGADO -> "ORDER_PAID";
+            case SHIPPED -> "ORDER_SHIPPED";
+            case DELIVERED -> "ORDER_DELIVERED";
+            case CANCELADO -> "ORDER_CANCELLED";
+        };
     }
 
     private OrderDTO convertToDTO(Order order) {

@@ -17,8 +17,8 @@ const props = defineProps({
 const statusConfig = {
   CREADO: { text: "Created", class: "status-created" },
   PAGADO: { text: "Paid", class: "status-paid" },
-  ENVIADO: { text: "Shipped", class: "status-shipped" },
-  COMPLETADO: { text: "Completed", class: "status-completed" },
+  SHIPPED: { text: "Shipped", class: "status-shipped" },
+  DELIVERED: { text: "Delivered", class: "status-completed" },
   CANCELADO: { text: "Cancelled", class: "status-cancelled" },
 };
 

@@ -7,7 +7,6 @@ const ordersAPI = axios.create({
   },
 });
 
-// Request interceptor para agregar JWT token
 ordersAPI.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('jwt_token');
@@ -21,12 +20,10 @@ ordersAPI.interceptors.request.use(
   }
 );
 
-// Response interceptor para manejar errores
 ordersAPI.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -35,29 +32,30 @@ ordersAPI.interceptors.response.use(
   }
 );
 
-// Orders API Methods
 export default {
-  // Create a new order
   createOrder(orderData) {
     return ordersAPI.post('/orders', orderData);
   },
 
-  // Get user's orders with pagination and filters
   getUserOrders(params = {}) {
     return ordersAPI.get('/orders', { params });
   },
 
-  // Get specific order details
   getOrderById(orderId) {
     return ordersAPI.get(`/orders/${orderId}`);
   },
-
-  // Update order status (admin only)
   updateOrderStatus(orderId, status) {
     return ordersAPI.put(`/orders/${orderId}/status`, { status });
   },
 
-  // Health check
+  getAllOrders(params = {}) {
+    return ordersAPI.get('/orders/admin/all', { params });
+  },
+
+  cancelOrder(orderId) {
+    return ordersAPI.put(`/orders/${orderId}/cancel`);
+  },
+
   healthCheck() {
     return ordersAPI.get('/health');
   },

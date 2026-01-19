@@ -2,6 +2,7 @@ package com.distributedsystem.orders.controller;
 
 import com.distributedsystem.orders.dto.CreateOrderRequest;
 import com.distributedsystem.orders.dto.OrderDTO;
+import com.distributedsystem.orders.dto.PaymentCallbackRequest;
 import com.distributedsystem.orders.dto.UpdateOrderStatusRequest;
 import com.distributedsystem.orders.model.OrderStatus;
 import com.distributedsystem.orders.security.UserPrincipal;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,6 +75,33 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/admin/all")
+    public ResponseEntity<ApiResponse<Page<OrderDTO>>> getAllOrders(
+            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        if (!userPrincipal.isAdmin()) {
+            throw new AccessDeniedException("Only administrators can view all orders");
+        }
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<OrderDTO> orders = orderService.getAllOrders(status, pageable);
+
+        ApiResponse<Page<OrderDTO>> response = ApiResponse.<Page<OrderDTO>>builder()
+                .success(true)
+                .data(orders)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderDTO>> getOrderById(
             @PathVariable Long id,
@@ -101,6 +130,44 @@ public class OrderController {
                 .success(true)
                 .data(order)
                 .message("Order status updated successfully")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/payment-callback")
+    public ResponseEntity<ApiResponse<OrderDTO>> paymentCallback(
+            @PathVariable Long id,
+            @Valid @RequestBody PaymentCallbackRequest request) {
+
+        log.info("Payment callback received for order: {}, paymentId: {}", id, request.getPaymentId());
+
+        OrderDTO order = orderService.handlePaymentCallback(id, request);
+
+        ApiResponse<OrderDTO> response = ApiResponse.<OrderDTO>builder()
+                .success(true)
+                .data(order)
+                .message("Payment confirmed successfully")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<OrderDTO>> cancelOrder(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        log.info("Cancel order request for order: {} by user: {}", id, userPrincipal.getUserId());
+
+        OrderDTO order = orderService.cancelOrder(id, userPrincipal);
+
+        ApiResponse<OrderDTO> response = ApiResponse.<OrderDTO>builder()
+                .success(true)
+                .data(order)
+                .message("Order cancelled successfully")
                 .timestamp(LocalDateTime.now())
                 .build();
 

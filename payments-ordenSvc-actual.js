@@ -12,7 +12,7 @@ const config = {
   headers: baseHeaders,
 };
 
-export const notifPago = async (idPedido, estado, monto) => {
+export const notifPago = async (idPedido, estado) => {
   try {
     const estadoMap = {
       'pendiente': 'PENDING',
@@ -27,7 +27,7 @@ export const notifPago = async (idPedido, estado, monto) => {
       {
         paymentId: `pay_${Date.now()}`,
         status: estOrd,
-        amount: parseFloat(monto) || 1,
+        amount: 0,
         paymentMethod: 'credit_card'
       },
       config
@@ -36,10 +36,6 @@ export const notifPago = async (idPedido, estado, monto) => {
     return resp.data;
   } catch (err) {
     console.error(`Error al notificar orden ${idPedido}:`, err.message);
-    if (err.response) {
-      console.error(`Response status: ${err.response.status}`);
-      console.error(`Response data:`, err.response.data);
-    }
     throw new Error(`No se pudo actualizar orden: ${err.message}`);
   }
 };

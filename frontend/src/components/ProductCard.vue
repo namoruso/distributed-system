@@ -30,11 +30,21 @@
       </div>
     </div>
   </div>
+
+  <AlertModal
+    :show="alertState.show"
+    :message="alertState.message"
+    :type="alertState.type"
+    :title="alertState.title"
+    @close="closeAlert"
+  />
 </template>
 
 <script setup>
 import { computed } from "vue";
 import { useCartStore } from "../store/cart-store";
+import { useModal } from "../composables/useModal";
+import AlertModal from "./modals/AlertModal.vue";
 
 const cartStore = useCartStore();
 
@@ -82,9 +92,14 @@ const handleImageError = (e) => {
   e.target.src = placeholderImage;
 };
 
-const addToCart = () => {
+const { alertState, showAlert, closeAlert } = useModal();
+
+const addToCart = async () => {
   cartStore.addToCart(props.product, 1);
-  alert(`${props.product.name} added to cart!`);
+  await showAlert(`${props.product.name} added to cart!`, {
+    type: 'success',
+    title: 'Added to Cart'
+  });
 };
 </script>
 
