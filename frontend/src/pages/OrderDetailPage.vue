@@ -125,11 +125,15 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ordersAPI from '../api/orders-api';
+import { useProductsStore } from '../store/products-store';
+import { useToast } from '../composables/useToast';
 import OrderStatusBadge from '../components/OrderStatusBadge.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
+const toast = useToast();
+const productsStore = useProductsStore();
 
 const orderId = ref(route.params.id);
 const order = ref(null);
@@ -226,12 +230,19 @@ const handleCancelOrder = async () => {
   try {
     cancelling.value = true;
 
-    alert('Order cancellation will be implemented once the API endpoint is ready');
+    await ordersAPI.cancelOrder(orderId.value);
+    
+    toast.success('Order cancelled successfully');
 
     await fetchOrderDetails();
+
+    await productsStore.fetchProducts();
+    
   } catch (err) {
     console.error('Error cancelling order:', err);
-    error.value = 'Failed to cancel order. Please try again.';
+    const errorMessage = err.response?.data?.message || 'Failed to cancel order. Please try again.';
+    toast.error(errorMessage);
+    error.value = errorMessage;
   } finally {
     cancelling.value = false;
     showCancelDialog.value = false;

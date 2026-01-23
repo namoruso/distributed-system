@@ -101,7 +101,6 @@ class ProductController extends Controller
             ], 404);
         }
 
-        $product->stock = 50;
 
         return response()->json([
             'success' => true,
@@ -244,7 +243,7 @@ class ProductController extends Controller
                 continue;
             }
 
-            $availableStock = 50;
+            $availableStock = $product->stock ?? 0;
 
             $isAvailable = $availableStock >= $item['quantity'];
 
@@ -275,5 +274,88 @@ class ProductController extends Controller
                 'total_amount' => array_sum(array_column($results, 'subtotal'))
             ]
         ], 200);
+    }
+
+    public function updateStock(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|integer|exists:products,id',
+            'items.*.quantity' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        \DB::beginTransaction();
+        
+        try {
+            $results = [];
+            
+            foreach ($request->items as $item) {
+                $product = Product::find($item['id']);
+                
+                if (!$product) {
+                    \DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Product with ID {$item['id']} not found"
+                    ], 404);
+                }
+                
+                $newStock = $product->stock + $item['quantity'];
+                
+                if ($newStock < 0) {
+                    \DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Insufficient stock for product '{$product->name}'. Available: {$product->stock}, Requested: " . abs($item['quantity'])
+                    ], 400);
+                }
+                
+                $product->stock = $newStock;
+                $product->save();
+                
+                $results[] = [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'previous_stock' => $product->stock - $item['quantity'],
+                    'quantity_change' => $item['quantity'],
+                    'new_stock' => $product->stock
+                ];
+                
+                \Log::info('Stock updated for product', [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'quantity_change' => $item['quantity'],
+                    'new_stock' => $product->stock
+                ]);
+            }
+            
+            \DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Stock updated successfully',
+                'data' => $results
+            ], 200);
+            
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error updating stock', [
+                'error' => $e->getMessage(),
+                'items' => $request->items
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating stock: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

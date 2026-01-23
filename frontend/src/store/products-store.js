@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import * as productsAPI from '../api/products-api';
-import * as inventoryAPI from '../api/inventory-api';
+
 
 export const useProductsStore = defineStore('products', {
   state: () => ({
@@ -80,34 +80,13 @@ export const useProductsStore = defineStore('products', {
       this.error = null;
       
       try {
-        const [productsResponse, inventoryResponse] = await Promise.all([
-          productsAPI.getAllProducts(),
-          inventoryAPI.getAllInventory()
-        ]);
+        const response = await productsAPI.getAllProducts();
+        const products = response.data || response;
         
-        const products = productsResponse.data || productsResponse;
-        const inventory = Array.isArray(inventoryResponse) ? inventoryResponse : (inventoryResponse.data || []);
-
-        this.products = products.map(product => {
-
-          const inventoryItem = inventory.find(item => item.sku === product.sku);
-          
-          if (inventoryItem) {
-            return {
-              ...product,
-              stock: inventoryItem.stock,
-              minimun: inventoryItem.minimun,
-              maximun: inventoryItem.maximun,
-              inventory_status: inventoryItem.status
-            };
-          }
-
-          return product;
-        });
-        
+        this.products = products;
         this.loading = false;
       } catch (error) {
-        console.error('Error fetching products/inventory:', error);
+        console.error('Error fetching products:', error);
         this.error = error.message || 'Failed to fetch products';
         this.loading = false;
       }

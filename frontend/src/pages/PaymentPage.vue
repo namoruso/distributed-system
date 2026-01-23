@@ -206,6 +206,7 @@ import { usePaymentsStore } from '../store/payments-store';
 import { useCartStore } from '../store/cart-store';
 import { useOrdersStore } from '../store/orders-store';
 import { useAuthStore } from '../store/auth-store';
+import { useProductsStore } from '../store/products-store';
 import { useToast } from '../composables/useToast';
 import LoadingSpinner from '../components/LoadingSpinner.vue';
 import OrderStatusBadge from '../components/OrderStatusBadge.vue';
@@ -216,6 +217,7 @@ const paymentsStore = usePaymentsStore();
 const cartStore = useCartStore();
 const ordersStore = useOrdersStore();
 const authStore = useAuthStore();
+const productsStore = useProductsStore();
 const toast = useToast();
 
 const step = ref(1);
@@ -243,7 +245,6 @@ const cardDetails = ref({
   email: ''
 });
 
-// Computed property for form validation
 const formValid = computed(() => {
   return (
     cardDetails.value.number.trim().length >= 13 &&
@@ -469,7 +470,10 @@ const processPayment = async () => {
         try {
           await ordersStore.fetchOrderById(order.value.id);
           console.log('Order refreshed after payment');
+          await productsStore.fetchProducts();
+          console.log('Products stock refreshed');
         } catch (error) {
+          console.error('Error refreshing data:', error);
         }
       }, 1000);
       

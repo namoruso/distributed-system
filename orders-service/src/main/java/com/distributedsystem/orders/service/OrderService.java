@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -146,6 +147,21 @@ public class OrderService {
             throw new IllegalStateException(errorMsg);
         }
 
+        List<StockUpdateItem> stockUpdates = order.getItems().stream()
+                .map(item -> StockUpdateItem.builder()
+                        .id(item.getProductId())
+                        .quantity(-item.getQuantity())
+                        .build())
+                .toList();
+
+        try {
+            productServiceClient.updateStock(stockUpdates, null);
+            log.info("Stock reduced successfully for order: {}", orderId);
+        } catch (Exception e) {
+            log.error("Failed to reduce stock for order: {}", orderId, e);
+            throw new RuntimeException("Failed to reduce stock. Payment cannot be completed.", e);
+        }
+
         order.setStatus(OrderStatus.PAGADO);
         Order updatedOrder = orderRepository.save(order);
 
@@ -235,11 +251,24 @@ public class OrderService {
             throw new IllegalStateException("Order is already cancelled");
         }
 
-        if (currentStatus != OrderStatus.CREADO && currentStatus != OrderStatus.PAGADO) {
-            throw new IllegalStateException(
-                    String.format(
-                            "Cannot cancel order in status %s. Orders can only be cancelled when CREADO or PAGADO",
-                            currentStatus));
+        if (currentStatus == OrderStatus.PAGADO || currentStatus == OrderStatus.SHIPPED
+                || currentStatus == OrderStatus.DELIVERED) {
+            List<StockUpdateItem> stockUpdates = order.getItems().stream()
+                    .map(item -> StockUpdateItem.builder()
+                            .id(item.getProductId())
+                            .quantity(item.getQuantity()) // Positive to restore stock
+                            .build())
+                    .toList();
+
+            try {
+                productServiceClient.updateStock(stockUpdates, null);
+                log.info("Stock restored successfully for cancelled order: {}", orderId);
+            } catch (Exception e) {
+                log.error("Failed to restore stock for cancelled order: {}, but order will still be cancelled", orderId,
+                        e);
+            }
+        } else {
+            log.info("Order {} was in status {} (not paid yet), no stock to restore", orderId, currentStatus);
         }
 
         order.setStatus(OrderStatus.CANCELADO);
